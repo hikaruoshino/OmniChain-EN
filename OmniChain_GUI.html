@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniChain Web Config Editor</title>
+    <style>
+        :root {
+            --bg: #0f141d;
+            --card: #18202c;
+            --accent: #4f46e5;
+            --accent-hover: #6366f1;
+            --text: #f3f4f6;
+            --sub: #9ca3af;
+            --border: #2d3848;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: 'Segoe UI', Meiryo, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        h1 {
+            color: #818cf8;
+            margin: 0 0 8px 0;
+            font-size: 26px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        h2 {
+            font-size: 17px;
+            margin-top: 0;
+            color: #a5b4fc;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--sub);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #e5e7eb;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #818cf8;
+        }
+        .ws-list {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            min-height: 220px;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+        .ws-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1f2937;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border: 1px solid #374151;
+            cursor: grab;
+            transition: background 0.15s;
+        }
+        .ws-item:hover {
+            background: #374151;
+        }
+        .ws-badge {
+            background: #4338ca;
+            color: #e0e7ff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        .ws-title {
+            font-weight: bold;
+            flex: 1;
+            font-size: 14px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 3px;
+        }
+        .btn {
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-sm {
+            padding: 3px 7px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .btn-action {
+            background: #374151;
+            color: #d1d5db;
+        }
+        .btn-action:hover {
+            background: #4b5563;
+            color: white;
+        }
+        .add-box {
+            background: #111827;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 12px;
+        }
+        footer {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        .file-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .file-upload-btn input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .search-box {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ OmniChain - Web Config Editor</h1>
+            <p style="color: var(--sub); margin:0; font-size:14px;">WS priority editor for all 22 jobs, all 14 weapon types, PUP automaton WS and SMN blood pacts (230 moves)</p>
+        </header>
+        
+        <div class="grid">
+            <!-- 1. Job and basic settings -->
+            <div class="card">
+                <h2>1. Job and equipped weapon type</h2>
+                
+                <div class="form-group">
+                    <label>Job:</label>
+                    <select id="jobSelect" onchange="onJobChange()">
+                        <option value="WAR">Warrior (WAR)</option>
+                        <option value="PLD">Paladin (PLD)</option>
+                        <option value="SAM">Samurai (SAM)</option>
+                        <option value="THF">Thief (THF)</option>
+                        <option value="DRK">Dark Knight (DRK)</option>
+                        <option value="DRG">Dragoon (DRG)</option>
+                        <option value="MNK">Monk (MNK)</option>
+                        <option value="RDM">Red Mage (RDM)</option>
+                        <option value="BLU">Blue Mage (BLU)</option>
+                        <option value="COR">Corsair (COR)</option>
+                        <option value="DNC">Dancer (DNC)</option>
+                        <option value="RUN">Rune Fencer (RUN)</option>
+                        <option value="RNG">Ranger (RNG)</option>
+                        <option value="NIN">Ninja (NIN)</option>
+                        <option value="BST">Beastmaster (BST)</option>
+                        <option value="BRD">Bard (BRD)</option>
+                        <option value="PUP">Puppetmaster (PUP)</option>
+                        <option value="SCH">Scholar (SCH)</option>
+                        <option value="GEO">Geomancer (GEO)</option>
+                        <option value="WHM">White Mage (WHM)</option>
+                        <option value="BLM">Black Mage (BLM)</option>
+                        <option value="SMN">Summoner (SMN)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Main weapon type:</label>
+                    <select id="weaponSelect" onchange="onWeaponChange()">
+                        <option value="Great Axe">Great Axe</option>
+                        <option value="Axe">Axe</option>
+                        <option value="Sword">Sword</option>
+                        <option value="Great Sword">Great Sword</option>
+                        <option value="Dagger">Dagger</option>
+                        <option value="Great Katana">Great Katana</option>
+                        <option value="Katana">Katana</option>
+                        <option value="Polearm">Polearm</option>
+                        <option value="Scythe">Scythe</option>
+                        <option value="Hand-to-Hand">Hand-to-Hand</option>
+                        <option value="Club">Club</option>
+                        <option value="Staff">Staff</option>
+                        <option value="Archery">Archery</option>
+                        <option value="Marksmanship">Marksmanship</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Minimum TP (Min TP):</label>
+                    <input type="number" id="minTpInput" value="1000" min="1000" max="3000" step="100" onchange="onGlobalConfigChange()">
+                </div>
+            </div>
+            
+            <!-- 2. WS priority -->
+            <div class="card">
+                <h2>2. WS priority list (top = highest)</h2>
+                
+                <div id="wsList" class="ws-list">
+                    <!-- rendered dynamically -->
+                </div>
+                
+                <!-- add-WS controls -->
+                <div class="add-box">
+                    <label id="candidateCountLabel" style="color:#a5b4fc; margin-bottom:8px; display:block;">+ Add WS:</label>
+                    
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <select id="categoryFilter" onchange="populateAddWsSelect()">
+                            <option value="CURRENT">Selected weapon type only</option>
+                            <option value="ALL">* All weapon types / all moves (230)</option>
+                            <option value="Hand-to-Hand">Hand-to-Hand WS</option>
+                            <option value="Dagger">Dagger WS</option>
+                            <option value="Sword">Sword WS</option>
+                            <option value="Great Sword">Great Sword WS</option>
+                            <option value="Axe">Axe WS</option>
+                            <option value="Great Axe">Great Axe WS</option>
+                            <option value="Scythe">Scythe WS</option>
+                            <option value="Polearm">Polearm WS</option>
+                            <option value="Katana">Katana WS</option>
+                            <option value="Great Katana">Great Katana WS</option>
+                            <option value="Club">Club WS</option>
+                            <option value="Staff">Staff WS</option>
+                            <option value="Archery">Archery WS</option>
+                            <option value="Marksmanship">Marksmanship WS</option>
+                            <option value="PUP Automaton WS">🤖 PUP Automaton WS</option>
+                            <option value="SMN Blood Pacts">🔮 SMN Blood Pacts (avatars)</option>
+                        </select>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="wsSearchInput" placeholder="🔍 Filter (e.g. Mumei, Savage, Flaming...)" oninput="populateAddWsSelect()">
+                    </div>
+                    
+                    <div style="margin-bottom:8px;">
+                        <select id="addWsSelect" size="8" style="width:100%; min-height:160px;">
+                            <!-- generated dynamically -->
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="addSelectedWS()">Add the selected WS to the priority list</button>
+
+                    <div style="margin-top:10px; border-top:1px dashed #374151; padding-top:8px;">
+                        <label style="font-size:12px; color:#9ca3af;">Free entry (a WS name not in the list):</label>
+                        <div style="display:flex; gap:8px; margin-top:4px;">
+                            <input type="text" id="customWsInput" placeholder="Type a WS name">
+                            <button class="btn btn-action" onclick="addCustomWS()">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="file-upload-btn">
+                <button class="btn btn-action">📁 Load omnichain_config.json</button>
+                <input type="file" id="jsonFileInput" accept=".json" onchange="importJSON(event)">
+            </div>
+            
+            <button class="btn btn-success" style="font-size:15px; padding:12px 24px;" onclick="exportJSON()">💾 Save / download omnichain_config.json</button>
+        </footer>
+    </div>
+
+    <script>
+        const wsDict = {
+            "Hand-to-Hand": ["Combo", "Shoulder Tackle", "One Inch Punch", "Backhand Blow", "Raging Fists", "Spinning Attack", "Howling Fist", "Dragon Kick", "Asuran Fists", "Tornado Kick", "Final Heaven", "Ascetic's Fury", "Stringing Pummel", "Victory Smite", "Shijin Spiral", "Maru Kala", "Final Paradise", "Dragon Blow"],
+            "Dagger": ["Wasp Sting", "Viper Bite", "Shadowstitch", "Gust Slash", "Cyclone", "Energy Steal", "Energy Drain", "Dancing Edge", "Shark Bite", "Evisceration", "Mercy Stroke", "Mandalic Stab", "Mordant Rime", "Pyrrhic Kleos", "Rudra's Storm", "Aeolian Edge", "Exenterator", "Ruthless Stroke"],
+            "Sword": ["Fast Blade", "Burning Blade", "Red Lotus Blade", "Flat Blade", "Shining Blade", "Seraph Blade", "Circle Blade", "Spirits Within", "Vorpal Blade", "Swift Blade", "Savage Blade", "Sanguine Blade", "Knights of Round", "Atonement", "Expiacion", "Death Blossom", "Chant du Cygne", "Requiescat", "Imperator", "Knights of Rotund", "Uriel Blade", "Glory Slash", "Fast Blade II"],
+            "Great Sword": ["Hard Slash", "Power Slash", "Frostbite", "Freezebite", "Shockwave", "Spinning Slash", "Ground Strike", "Scourge", "Torcleaver", "Resolution", "Dimidiation", "Fimbulvetr", "Crescent Moon", "Sickle Moon", "Herculean Slash"],
+            "Axe": ["Avalanche Axe", "Rampage", "Calamity", "Mistral Axe", "Decimation", "Onslaught", "Primal Rend", "Ruinator", "Cloudsplitter", "Blitz", "Raging Axe", "Smash Axe", "Gale Axe", "Spinning Axe", "Bora Axe"],
+            "Great Axe": ["Shield Break", "Iron Tempest", "Full Break", "Raging Rush", "Steel Cyclone", "Metatron Torment", "King's Justice", "Ukko's Fury", "Upheaval", "Fell Cleave", "Disaster", "Sturmwind", "Armor Break", "Keen Edge", "Weapon Break"],
+            "Scythe": ["Slice", "Dark Harvest", "Nightmare Scythe", "Guillotine", "Cross Reaper", "Spiral Hell", "Catastrophe", "Insurgency", "Infernal Scythe", "Quietus", "Entropy", "Origin", "Shadow of Death", "Spinning Scythe", "Vorpal Scythe"],
+            "Polearm": ["Double Thrust", "Thunder Thrust", "Raiden Thrust", "Leg Sweep", "Penta Thrust", "Vorpal Thrust", "Skewer", "Wheeling Thrust", "Impulse Drive", "Geirskogul", "Drakesbane", "Sonic Thrust", "Camlann's Torment", "Stardiver", "Diarmuid"],
+            "Katana": ["Blade: Rin", "Blade: Retsu", "Blade: Teki", "Blade: To", "Blade: Chi", "Blade: Ei", "Blade: Jin", "Blade: Ten", "Blade: Ku", "Blade: Metsu", "Blade: Kamu", "Blade: Hi", "Blade: Shun", "Zesho Meppo", "Blade: Yu"],
+            "Great Katana": ["Tachi: Enpi", "Tachi: Hobaku", "Tachi: Goten", "Tachi: Kagero", "Tachi: Jinpu", "Tachi: Koki", "Tachi: Yukikaze", "Tachi: Gekko", "Tachi: Kasha", "Tachi: Kaiten", "Tachi: Rana", "Tachi: Ageha", "Tachi: Shoha", "Tachi: Fudo", "Tachi: Mumei", "Tachi: Suikawari"],
+            "Club": ["Shining Strike", "Seraph Strike", "Brainshaker", "Judgment", "Hexa Strike", "Black Halo", "Randgrith", "Realmrazer", "Exudation", "Flash Nova", "Dagda", "Skullbreaker", "True Strike"],
+            "Staff": ["Heavy Swing", "Rock Crusher", "Earth Crusher", "Starburst", "Sunburst", "Retribution", "Vidohunir", "Garland of Bliss", "Omniscience", "Cataclysm", "Myrkr", "Shattersoul", "Oshala", "Shell Crusher", "Full Swing", "Gate of Tartarus"],
+            "Archery": ["Flaming Arrow", "Piercing Arrow", "Dulling Arrow", "Blast Arrow", "Arching Arrow", "Empyreal Arrow", "Namas Arrow", "Refulgent Arrow", "Jishnu's Radiance", "Apex Arrow", "Sarv", "Sidewinder"],
+            "Marksmanship": ["Hot Shot", "Split Shot", "Sniper Shot", "Slug Shot", "Detonator", "Coronach", "Trueflight", "Leaden Salute", "Wildfire", "Last Stand", "Terminus", "Blast Shot", "Heavy Shot", "Numbing Shot"],
+            "PUP Automaton WS": ["String Shredder", "Slapstick", "Knockout", "Magic Mortar", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"],
+            "SMN Blood Pacts": ["Poison Nails", "Rock Throw", "Rock Buster", "Megalith Throw", "Mountain Buster", "Crag Throw", "Barracuda Dive", "Tail Whip", "Spinning Dive", "Claw", "Predator Claws", "Punch", "Burning Strike", "Double Punch", "Flaming Crush", "Axe Kick", "Double Slap", "Rush", "Shock Strike", "Chaotic Strike", "Volt Strike", "Moonlit Charge", "Crescent Fang", "Eclipse Bite", "Camisado", "Blindside", "Regal Scratch", "Regal Gash", "Welt", "Roundhouse", "Hysteric Assault"]
+        };
+
+        let configData = {
+            "enabled": true,
+            "min_tp": 1000,
+            "party_sync": true,
+            "auto_mode": "flexible",
+            "wait_delay": 1.2,
+            "profiles": {
+                "WAR": { "weapon": "Great Axe", "ws_priority": ["Disaster", "Upheaval", "Ukko's Fury", "King's Justice", "Fell Cleave", "Sturmwind", "Armor Break", "Keen Edge", "Weapon Break"] },
+                "PLD": { "weapon": "Sword", "ws_priority": ["Imperator", "Savage Blade", "Chant du Cygne", "Vorpal Blade", "Atonement"] },
+                "SAM": { "weapon": "Great Katana", "ws_priority": ["Tachi: Mumei", "Tachi: Fudo", "Tachi: Shoha", "Tachi: Kasha"] },
+                "THF": { "weapon": "Dagger", "ws_priority": ["Ruthless Stroke", "Rudra's Storm", "Evisceration", "Aeolian Edge"] },
+                "DRK": { "weapon": "Scythe", "ws_priority": ["Origin", "Cross Reaper", "Entropy", "Catastrophe", "Shadow of Death", "Spinning Scythe", "Vorpal Scythe"] },
+                "RNG": { "weapon": "Archery", "ws_priority": ["Sarv", "Jishnu's Radiance", "Apex Arrow", "Namas Arrow", "Sidewinder"] },
+                "NIN": { "weapon": "Katana", "ws_priority": ["Zesho Meppo", "Blade: Shun", "Blade: Hi", "Blade: Jin", "Blade: Yu"] },
+                "DRG": { "weapon": "Polearm", "ws_priority": ["Diarmuid", "Impulse Drive", "Camlann's Torment", "Stardiver", "Skewer"] },
+                "MNK": { "weapon": "Hand-to-Hand", "ws_priority": ["Maru Kala", "Victory Smite", "Shijin Spiral", "Asuran Fists"] },
+                "RDM": { "weapon": "Sword", "ws_priority": ["Imperator", "Savage Blade", "Chant du Cygne", "Death Blossom", "Sanguine Blade"] },
+                "BLU": { "weapon": "Sword", "ws_priority": ["Imperator", "Savage Blade", "Chant du Cygne", "Requiescat"] },
+                "COR": { "weapon": "Marksmanship", "ws_priority": ["Terminus", "Leaden Salute", "Last Stand", "Wildfire", "Blast Shot", "Heavy Shot", "Numbing Shot"] },
+                "DNC": { "weapon": "Dagger", "ws_priority": ["Ruthless Stroke", "Pyrrhic Kleos", "Rudra's Storm", "Evisceration"] },
+                "RUN": { "weapon": "Great Sword", "ws_priority": ["Fimbulvetr", "Dimidiation", "Torcleaver", "Resolution", "Crescent Moon", "Sickle Moon", "Herculean Slash"] },
+                "BST": { "weapon": "Axe", "ws_priority": ["Blitz", "Ruinator", "Decimation", "Cloudsplitter", "Raging Axe", "Smash Axe", "Gale Axe", "Spinning Axe", "Bora Axe"] },
+                "BRD": { "weapon": "Dagger", "ws_priority": ["Ruthless Stroke", "Rudra's Storm", "Mordant Rime", "Aeolian Edge"] },
+                "PUP": { "weapon": "Hand-to-Hand", "ws_priority": ["Maru Kala", "Victory Smite", "String Shredder", "Bone Crusher", "Armor Shatterer"] },
+                "SCH": { "weapon": "Staff", "ws_priority": ["Oshala", "Garland of Bliss", "Myrkr", "Cataclysm", "Shell Crusher", "Full Swing", "Gate of Tartarus"] },
+                "GEO": { "weapon": "Club", "ws_priority": ["Dagda", "Black Halo", "Realmrazer", "Flash Nova", "Skullbreaker", "True Strike"] },
+                "WHM": { "weapon": "Club", "ws_priority": ["Dagda", "Hexa Strike", "Black Halo", "Realmrazer", "Skullbreaker", "True Strike"] },
+                "BLM": { "weapon": "Staff", "ws_priority": ["Oshala", "Vidohunir", "Myrkr", "Cataclysm", "Shell Crusher", "Full Swing", "Gate of Tartarus"] },
+                "SMN": { "weapon": "Staff", "ws_priority": ["Volt Strike", "Flaming Crush", "Predator Claws", "Garland of Bliss", "Shell Crusher", "Full Swing", "Gate of Tartarus"] }
+            }
+        };
+
+        let draggedIdx = null;
+
+        function renderPriorityList() {
+            const job = document.getElementById('jobSelect').value;
+            const listDiv = document.getElementById('wsList');
+            listDiv.innerHTML = '';
+            
+            if (!configData.profiles[job]) {
+                configData.profiles[job] = { "weapon": "Sword", "ws_priority": [] };
+            }
+
+            const priorityList = configData.profiles[job].ws_priority || [];
+
+            if (priorityList.length === 0) {
+                listDiv.innerHTML = '<div style="color:#6b7280; text-align:center; padding:30px;">No WS registered.<br>Choose a WS from the controls below.</div>';
+                return;
+            }
+
+            priorityList.forEach((ws, idx) => {
+                const item = document.createElement('div');
+                item.className = 'ws-item';
+                item.draggable = true;
+                
+                item.ondragstart = (e) => { draggedIdx = idx; e.dataTransfer.effectAllowed = 'move'; };
+                item.ondragover = (e) => { e.preventDefault(); };
+                item.ondrop = (e) => {
+                    e.preventDefault();
+                    if (draggedIdx !== null && draggedIdx !== idx) {
+                        const temp = priorityList[draggedIdx];
+                        priorityList.splice(draggedIdx, 1);
+                        priorityList.splice(idx, 0, temp);
+                        renderPriorityList();
+                    }
+                };
+
+                item.innerHTML = `<span class="ws-badge">Priority ${idx + 1}</span><span class="ws-title">${ws}</span><div class="btn-group"><button class="btn btn-sm btn-action" title="To the top" onclick="moveWS(${idx}, 'top')">🔝</button><button class="btn btn-sm btn-action" title="Up one" onclick="moveWS(${idx}, -1)">▲</button><button class="btn btn-sm btn-action" title="Down one" onclick="moveWS(${idx}, 1)">▼</button><button class="btn btn-sm btn-action" title="To the bottom" onclick="moveWS(${idx}, 'bottom')">🔻</button><button class="btn btn-sm btn-danger" title="Remove" onclick="removeWS(${idx})">Remove</button></div>`;
+                listDiv.appendChild(item);
+            });
+        }
+
+        function moveWS(idx, action) {
+            const job = document.getElementById('jobSelect').value;
+            const list = configData.profiles[job].ws_priority;
+            
+            if (action === 'top') {
+                const item = list.splice(idx, 1)[0];
+                list.unshift(item);
+            } else if (action === 'bottom') {
+                const item = list.splice(idx, 1)[0];
+                list.push(item);
+            } else if (typeof action === 'number') {
+                const targetIdx = idx + action;
+                if (targetIdx >= 0 && targetIdx < list.length) {
+                    const temp = list[idx];
+                    list[idx] = list[targetIdx];
+                    list[targetIdx] = temp;
+                }
+            }
+            renderPriorityList();
+        }
+
+        function removeWS(idx) {
+            const job = document.getElementById('jobSelect').value;
+            configData.profiles[job].ws_priority.splice(idx, 1);
+            renderPriorityList();
+        }
+
+        function addSelectedWS() {
+            const job = document.getElementById('jobSelect').value;
+            const select = document.getElementById('addWsSelect');
+            const selectedOptions = Array.from(select.selectedOptions);
+            if (selectedOptions.length > 0) {
+                if (!configData.profiles[job].ws_priority) {
+                    configData.profiles[job].ws_priority = [];
+                }
+                selectedOptions.forEach(opt => {
+                    const ws = opt.value;
+                    if (ws && !configData.profiles[job].ws_priority.includes(ws)) {
+                        configData.profiles[job].ws_priority.push(ws);
+                    }
+                });
+                renderPriorityList();
+            }
+        }
+
+        function addCustomWS() {
+            const job = document.getElementById('jobSelect').value;
+            const input = document.getElementById('customWsInput');
+            const ws = input.value.trim();
+            if (ws) {
+                if (!configData.profiles[job].ws_priority) {
+                    configData.profiles[job].ws_priority = [];
+                }
+                if (!configData.profiles[job].ws_priority.includes(ws)) {
+                    configData.profiles[job].ws_priority.push(ws);
+                    input.value = '';
+                    renderPriorityList();
+                }
+            }
+        }
+
+        function populateAddWsSelect() {
+            const filterCategory = document.getElementById('categoryFilter').value;
+            const currentWeapon = document.getElementById('weaponSelect').value;
+            const currentJob = document.getElementById('jobSelect').value;
+            const filterText = document.getElementById('wsSearchInput').value.trim().toLowerCase();
+            const select = document.getElementById('addWsSelect');
+            const countLabel = document.getElementById('candidateCountLabel');
+            select.innerHTML = '';
+
+            let candidateList = [];
+
+            if (filterCategory === 'CURRENT') {
+                candidateList = (wsDict[currentWeapon] || []).slice();
+                if (currentJob === 'PUP' && wsDict['PUP Automaton WS']) {
+                    candidateList = candidateList.concat(wsDict['PUP Automaton WS']);
+                } else if (currentJob === 'SMN' && wsDict['SMN Blood Pacts']) {
+                    candidateList = candidateList.concat(wsDict['SMN Blood Pacts']);
+                }
+            } else if (filterCategory === 'ALL') {
+                let set = new Set();
+                Object.values(wsDict).forEach(arr => arr.forEach(w => set.add(w)));
+                candidateList = Array.from(set);
+            } else if (wsDict[filterCategory]) {
+                candidateList = wsDict[filterCategory];
+            }
+
+            if (filterText) {
+                candidateList = candidateList.filter(w => w.toLowerCase().includes(filterText));
+            }
+
+            countLabel.textContent = `+ Add WS (${candidateList.length} candidates):`;
+
+            if (candidateList.length === 0) {
+                const opt = document.createElement('option');
+                opt.textContent = '-- no matching WS --';
+                select.appendChild(opt);
+                return;
+            }
+
+            candidateList.forEach(ws => {
+                const opt = document.createElement('option');
+                opt.value = ws;
+                opt.textContent = ws;
+                select.appendChild(opt);
+            });
+        }
+
+        function onJobChange() {
+            const job = document.getElementById('jobSelect').value;
+            if (!configData.profiles[job]) {
+                configData.profiles[job] = { "weapon": "Sword", "ws_priority": [] };
+            }
+            document.getElementById('weaponSelect').value = configData.profiles[job].weapon || "Sword";
+            populateAddWsSelect();
+            renderPriorityList();
+        }
+
+        function onWeaponChange() {
+            const job = document.getElementById('jobSelect').value;
+            const weapon = document.getElementById('weaponSelect').value;
+            configData.profiles[job].weapon = weapon;
+            populateAddWsSelect();
+        }
+
+        function onGlobalConfigChange() {
+            configData.min_tp = parseInt(document.getElementById('minTpInput').value) || 1000;
+        }
+
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(configData, null, 4));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "omnichain_config.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.profiles) {
+                        configData = imported;
+                        if (imported.min_tp) {
+                            document.getElementById('minTpInput').value = imported.min_tp;
+                        }
+                        onJobChange();
+                        alert('Loaded omnichain_config.json successfully!');
+                    } else {
+                        alert('This is not a valid omnichain_config.json file.');
+                    }
+                } catch(err) {
+                    alert('Failed to read the JSON file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // initialize
+        onJobChange();
+    </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+{
+    "enabled": true,
+    "min_tp": 1000,
+    "party_sync": true,
+    "auto_mode": "flexible",
+    "wait_delay": 1.2,
+    "profiles": {
+        "WAR": {
+            "weapon": "Great Axe",
+            "ws_priority": [
+                "Disaster",
+                "Upheaval",
+                "Ukko's Fury",
+                "King's Justice",
+                "Fell Cleave",
+                "Sturmwind",
+                "Armor Break",
+                "Keen Edge",
+                "Weapon Break"
+            ]
+        },
+        "PLD": {
+            "weapon": "Sword",
+            "ws_priority": [
+                "Imperator",
+                "Savage Blade",
+                "Chant du Cygne",
+                "Vorpal Blade",
+                "Atonement"
+            ]
+        },
+        "SAM": {
+            "weapon": "Great Katana",
+            "opener_only": true,
+            "ws_priority": [
+                "Tachi: Ageha",
+                "Tachi: Shoha",
+                "Tachi: Jinpu",
+                "Tachi: Kasha",
+                "Tachi: Fudo"
+            ]
+        },
+        "THF": {
+            "weapon": "Dagger",
+            "ws_priority": [
+                "Ruthless Stroke",
+                "Rudra's Storm",
+                "Evisceration",
+                "Aeolian Edge"
+            ]
+        },
+        "DRK": {
+            "weapon": "Scythe",
+            "ws_priority": [
+                "Origin",
+                "Cross Reaper",
+                "Entropy",
+                "Catastrophe",
+                "Shadow of Death",
+                "Spinning Scythe",
+                "Vorpal Scythe"
+            ]
+        },
+        "RNG": {
+            "weapon": "Archery",
+            "ws_priority": [
+                "Sarv",
+                "Jishnu's Radiance",
+                "Apex Arrow",
+                "Namas Arrow",
+                "Sidewinder"
+            ]
+        },
+        "NIN": {
+            "weapon": "Katana",
+            "ws_priority": [
+                "Zesho Meppo",
+                "Blade: Shun",
+                "Blade: Hi",
+                "Blade: Jin",
+                "Blade: Yu"
+            ]
+        },
+        "DRG": {
+            "weapon": "Polearm",
+            "ws_priority": [
+                "Diarmuid",
+                "Impulse Drive",
+                "Camlann's Torment",
+                "Stardiver",
+                "Skewer"
+            ]
+        },
+        "MNK": {
+            "weapon": "Hand-to-Hand",
+            "ws_priority": [
+                "Maru Kala",
+                "Victory Smite",
+                "Shijin Spiral",
+                "Asuran Fists"
+            ]
+        },
+        "RDM": {
+            "weapon": "Sword",
+            "ws_priority": [
+                "Imperator",
+                "Savage Blade",
+                "Chant du Cygne",
+                "Death Blossom",
+                "Sanguine Blade"
+            ]
+        },
+        "BLU": {
+            "weapon": "Sword",
+            "ws_priority": [
+                "Imperator",
+                "Savage Blade",
+                "Chant du Cygne",
+                "Requiescat"
+            ]
+        },
+        "COR": {
+            "weapon": "Marksmanship",
+            "ws_priority": [
+                "Terminus",
+                "Leaden Salute",
+                "Last Stand",
+                "Wildfire",
+                "Blast Shot",
+                "Heavy Shot",
+                "Numbing Shot"
+            ]
+        },
+        "DNC": {
+            "weapon": "Dagger",
+            "ws_priority": [
+                "Ruthless Stroke",
+                "Pyrrhic Kleos",
+                "Rudra's Storm",
+                "Evisceration"
+            ]
+        },
+        "RUN": {
+            "weapon": "Great Sword",
+            "ws_priority": [
+                "Fimbulvetr",
+                "Dimidiation",
+                "Torcleaver",
+                "Resolution",
+                "Crescent Moon",
+                "Sickle Moon",
+                "Herculean Slash"
+            ]
+        },
+        "BST": {
+            "weapon": "Axe",
+            "ws_priority": [
+                "Blitz",
+                "Ruinator",
+                "Decimation",
+                "Cloudsplitter",
+                "Raging Axe",
+                "Smash Axe",
+                "Gale Axe",
+                "Spinning Axe",
+                "Bora Axe"
+            ]
+        },
+        "BRD": {
+            "weapon": "Dagger",
+            "ws_priority": [
+                "Ruthless Stroke",
+                "Rudra's Storm",
+                "Mordant Rime",
+                "Aeolian Edge"
+            ]
+        },
+        "PUP": {
+            "weapon": "Hand-to-Hand",
+            "ws_priority": [
+                "Maru Kala",
+                "Victory Smite",
+                "String Shredder",
+                "Bone Crusher",
+                "Armor Shatterer"
+            ]
+        },
+        "SCH": {
+            "weapon": "Staff",
+            "ws_priority": [
+                "Oshala",
+                "Garland of Bliss",
+                "Myrkr",
+                "Cataclysm",
+                "Shell Crusher",
+                "Full Swing",
+                "Gate of Tartarus"
+            ]
+        },
+        "GEO": {
+            "weapon": "Club",
+            "ws_priority": [
+                "Dagda",
+                "Black Halo",
+                "Realmrazer",
+                "Flash Nova",
+                "Skullbreaker",
+                "True Strike"
+            ]
+        },
+        "WHM": {
+            "weapon": "Club",
+            "ws_priority": [
+                "Dagda",
+                "Hexa Strike",
+                "Black Halo",
+                "Realmrazer",
+                "Skullbreaker",
+                "True Strike"
+            ]
+        },
+        "BLM": {
+            "weapon": "Staff",
+            "ws_priority": [
+                "Oshala",
+                "Vidohunir",
+                "Myrkr",
+                "Cataclysm",
+                "Shell Crusher",
+                "Full Swing",
+                "Gate of Tartarus"
+            ]
+        },
+        "SMN": {
+            "weapon": "Staff",
+            "ws_priority": [
+                "Volt Strike",
+                "Flaming Crush",
+                "Predator Claws",
+                "Garland of Bliss",
+                "Shell Crusher",
+                "Full Swing",
+                "Gate of Tartarus"
+            ]
+        }
+    }
+}

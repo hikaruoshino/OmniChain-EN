@@ -1,0 +1,95 @@
+================================================================================
+ OmniChain v7.4.1 (English edition) - command list
+================================================================================
+ Commands start with //omni or //omnichain.
+ Typing just //omni shows a short help.
+ Commands that take no ON/OFF argument toggle between ON and OFF each time.
+
+
+--------------------------------------------------------------------------------
+ Basic controls
+--------------------------------------------------------------------------------
+ //omni enable  (or //omni on)        Turn auto skillchain ON
+ //omni disable (or //omni off)       Turn auto skillchain OFF
+ //omni start manual                  You use the first WS yourself (manual opener mode).
+                                      When your WS or someone else's becomes the opener, the
+                                      addon continues with that property. The auto WS waits the
+                                      configured time after the previous WS lands (so others
+                                      can interject). The chain window is treated as 10 s.
+ //omni start auto                    The first WS is automatic too (default, as before)
+ //omni start                         Show the current opener mode
+ //omni wait <sec>                    Wait time in manual opener mode (0-9, default 6)
+ //omni solo [on|off]                 Wait for trusts' solo chains to finish (default ON)
+                                      Applies to: Iroha, Iroha II, Noillurie, Gilgamesh, Ark GK
+                                      (Tenzen is not waited for - the addon interjects)
+                                      Meditate / Hagakure / Sekkanoki (a fixed set per trust)
+                                      is the cue to wait.
+ //omni solo start <sec>              Seconds to wait for the first WS after the ability (1-30, default 12)
+ //omni solo gap <sec>                Seconds to wait from one trust WS to the next (1-30, default 11)
+ //omni minfollow <sec>               Minimum seconds from the previous WS to the next auto WS (4-8, default 4)
+ //omni focus [on|off]                When at least 3 people (including you) target the same enemy,
+                                      skip chains and use the max-power WS (prime WS / empyrean WS).
+                                      Default ON
+ //omni focuspeople <number>          Number of people (including you) for the max-power WS (2-18, default 3)
+ //omni focustp <TP>                  TP at which the max-power WS is used (1000-3000, default 1500)
+ //omni toss [on|off]                 Predict a party member's next WS and pick a WS whose property
+                                      lets them continue (default ON; trusts are excluded)
+ //omni reach <distance>              Distance at which melee WS may be used (1-8, default 3.5;
+                                      the distance shown by distanceplus)
+ //omni hud [on|off]                  Show / hide the chain HUD (chain window, next WS)
+ //omni size <n>                      HUD font size (6-40). Also by mouse wheel over the HUD, or by
+                                      dragging the bottom-right corner marker (the size is saved)
+ //omni reload                        Reload omnichain_config.json
+ //omni status                        Show the current settings, job and priority list
+
+
+--------------------------------------------------------------------------------
+ Log
+--------------------------------------------------------------------------------
+ //omni log                           Show log ON/OFF, file location and counts since load
+ //omni log on / off                  Toggle writing to the log file
+ //omni log clear                     Empty the log file
+ //omni log tail [n]                  Show the most recent entries in chat (default 10, max 30)
+ //omni log err [n]                   Show only errors and warnings in chat
+
+ Location : addons/OmniChain/omnichain_debug.log
+            Past 1 MB it is moved to omnichain_debug.old.log.
+ Format   : [date time] [level] [category] message
+            Level is ERROR / WARN / INFO
+
+
+--------------------------------------------------------------------------------
+ Check
+--------------------------------------------------------------------------------
+ //omni check                         Check whether the WS in the priority list are usable now
+                                      - pet skills (cannot be used with /ws)
+                                      - names missing from sc_dict / res
+                                      - WS that are not learned / wrong weapon
+ The check also runs automatically at load and 5 seconds after a job change.
+
+
+--------------------------------------------------------------------------------
+ What the chat warnings mean
+--------------------------------------------------------------------------------
+ WS_TIMEOUT   The automatically sent WS did not fire within 4 seconds
+              (check the WS name, distance, incapacitation, etc.)
+ WS_FAIL      The WS failed (out of range, too far, not enough TP, wrong weapon, stance interrupted, ...)
+ WS_RESULT    The WS missed / had no effect, or a different WS fired than the one sent
+ CHECK        The priority list contains a WS that cannot be used
+ ERROR        An internal Lua error in OmniChain (details are written to the log file)
+
+ The same warning is shown at most once per 10 seconds, with the number of repeats appended.
+
+
+--------------------------------------------------------------------------------
+ How auto skillchain behaves
+--------------------------------------------------------------------------------
+ - With //omni start manual you use the first WS and the addon continues the chain.
+ - Put "opener_only": true in a job's entry in omnichain_config.json to make the first WS
+   in the priority list opener-only (during a chain, the 2nd and later entries are preferred).
+ - With an aeonic weapon, the aftermath Light/Darkness is included when judging your WS.
+ - When you move on to a different enemy, the previous enemy's chain is not continued;
+   the addon starts again from an opener.
+ - Pet skills, WS you have not learned and WS for another weapon are skipped; the highest
+   usable WS in the list is used.
+ - A WS that missed / had no effect is not treated as a chain opener.
