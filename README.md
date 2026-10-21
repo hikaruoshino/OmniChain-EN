@@ -189,6 +189,12 @@ Trusts chain with each other after these moves; their result is read as usual an
 
 ---
 
+## Notes
+
+* Use of external tools is at your own risk.
+
+---
+
 ## License and credits
 
 * **Author**: hikaruoshino (English edition prepared by the same author)
