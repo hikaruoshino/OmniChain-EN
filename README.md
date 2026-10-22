@@ -1,242 +1,225 @@
 # OmniChain (v7.4.1, English edition)
 
-**Auto-skillchain assistant addon for Final Fantasy XI (Windower 4) - all 22 jobs, all 14 weapon types.**
+OmniChain is a Windower 4 addon for Final Fantasy XI. It watches the weapon skills your party uses, and the blood pacts and automaton moves of pets, and uses the first weapon skill (WS) on your priority list that continues the current skillchain. When no chain is open, it uses the top usable WS on your list to start one. It supports all 22 jobs and all 14 weapon types.
 
-`OmniChain` watches weapon skills used by your party members (and blood pacts / automaton moves) in real time and **automatically picks, from your priority list, a weapon skill that continues the current skillchain**. When there is no chain, it uses the top usable WS in your list to open one.
+This is the English edition of [OmniChain](https://github.com/hikaruoshino/OmniChain), which is written in Japanese. The logic is the same as the Japanese v7.4.1. Messages, command help, the config editor and the data tables use the English names from the game's resources.
 
-This is the **English edition** of [OmniChain](https://github.com/hikaruoshino/OmniChain) (the original is in Japanese). It has the same features as the Japanese v7.4.1; every message, command help, weapon type / WS / skillchain name, the config editor and the data tables use the English names from the game's resources.
+## Notice
 
-> **Not verified in game by the author for this English build.** The logic is the same as the Japanese v7.4.1, which the author has used in game, but the English text and English-name tables were produced separately and have only been tested in a simulated environment. Please report problems as GitHub issues.
+This addon types weapon skills for you. Third-party tools, Windower included, are not permitted by the FFXI terms of service. Your account may be penalized, and the author takes no responsibility for any harm from using it. Use it at your own risk, and do not leave it running unattended.
 
----
+I have used the Japanese v7.4.1 in game. This English build has only been run in a simulated environment, because I play on the Japanese client. Some situations (trusts, large alliances) are hard to test alone, so reports are welcome as GitHub issues. After loading, `//omni check` tells you whether every WS name on your list is recognized by the game; the English names are the part most likely to be wrong.
 
-## Main features
-
-* **Automatic skillchains (all 22 jobs, all 14 weapon types)**
-  * Set a weapon type and a WS priority list per job. When TP reaches the configured value (default 1000), the addon uses a WS automatically.
-  * While a chain window is open (up to 10 s, shorter as the chain continues), the priority list is evaluated from the top and **the first WS that makes a skillchain** is used.
-* **Skillchain rules from the wiki** ([BG-Wiki: Skillchain](https://www.bg-wiki.com/ffxi/Skillchain))
-  * Properties are matched in the order A1+B1, A1+B2, A1+B3, A2+B1 ... and the first match is used.
-  * From the 3rd chain on, only the chain that just occurred is used for the next step.
-  * Light->Light / Darkness->Darkness works "one more time"; after Radiance / Umbra nothing chains.
-* **Property database (`sc_dict.lua`)**: 220 weapon skills, 31 blood pacts, 12 automaton WS.
-* **Chain detection (packets + chat)**: the added-effect message of the action packet (0x028) is used, with the `Skillchain: <name>.` chat line as a fallback (duplicates are ignored). Only party / alliance members and their pets are counted; enemy moves never open a window.
-* **Manual opener mode** (`//omni start manual`): you use the first WS, the addon continues the chain (also from someone else's opener).
-* **Opener-only WS, aeonic weapons, per-enemy chains**
-  * `"opener_only": true` in a job's config makes the first WS in the list opener-only.
-  * With an aeonic weapon, the Light / Darkness that aftermath adds is included when judging your WS.
-  * A chain is tracked per enemy; after you move to another enemy the addon starts again from an opener.
-* **Unusable WS are skipped**: pet skills (cannot use `/ws`), WS you have not learned and WS for another weapon are skipped.
-* **Trust support**: trusts' moves count as openers / chain steps, and the addon waits while a trust that aims for a solo skillchain (Iroha, Iroha II, Noillurie, Gilgamesh, Ark GK) is performing one.
-* **Max-power WS** (`//omni focus`): when at least 3 people (you included, alliance counted) target the same enemy, the addon stops chaining and uses the strongest WS (prime weapon -> its prime WS, otherwise the empyrean WS for the weapon type).
-* **Tosses** (`//omni toss`): predicts a party member's next WS and, when it is close, picks a WS whose property lets them continue.
-* **Reach check**: a WS is not used while out of range (melee WS at distance <= 3.5 by the distanceplus number; `//omni reach`). distanceplus is a separate Windower addon that shows the target distance; OmniChain calculates the same number itself and does not need it.
-* **Error / warning notices**: WS that do not fire, are out of range, lack TP or are interrupted are reported in chat (identical messages are grouped for 10 s).
-* **Web config editor (`OmniChain_GUI.html`)**: open it in a browser, edit each job's weapon type and WS priority and the minimum TP, and export `omnichain_config.json`.
-
----
-
-## Files
-
-```text
-OmniChain/
-├── OmniChain.lua            # the addon
-├── sc_dict.lua              # skillchain table + WS / blood pact / automaton property database
-├── OmniChain_GUI.html       # web config editor (open in a browser)
-├── omnichain_config.json    # per-job settings exported by the editor (optional)
-├── COMMANDS.txt             # command list
-├── README.md                # this document
-├── omnichain_debug.log      # generated log (moved to .old.log past 1 MB)
-└── data/
-    └── settings.xml         # generated settings file
-```
-
----
+In game with the Japanese build, the Samurai six-step chain (Ageha, Jinpu, Shoha, Shoha, Kasha, Fudo) went through in Temenos, and alliance members' targets could be read.
 
 ## Installation
 
-1. Download the files.
-2. Put them in your Windower 4 addons folder:
-   `Windower4/addons/OmniChain/OmniChain.lua`
-   `Windower4/addons/OmniChain/sc_dict.lua`
-3. In game, load it:
-   `//lua load OmniChain`
+1. Download the repository (Code > Download ZIP) and unzip it. GitHub names the folder `OmniChain-EN-main`; rename it to `OmniChain`. The addon will not load under any other name.
+2. Put the `OmniChain` folder in `Windower4/addons/`.
+3. In game, run `//lua load OmniChain`. To load it at every login, add `lua load OmniChain` to `scripts/init.txt` in your Windower folder.
 
-When updating from an older version, use `//lua reload OmniChain`.
+When updating, overwrite the files and run `//lua reload OmniChain`. Back up your own `omnichain_config.json` first.
 
-**Do not run the Japanese and the English edition at the same time** - they use the same addon name and commands. Use one folder named `OmniChain`.
+Do not run the Japanese and the English edition together. They share the addon name and the commands.
 
----
+The only requirement is Windower 4. The libraries used (`luau`, `config`, `texts`, `resources`, `packets`, `json`) all ship with it.
 
-## Configuration
+## What it does
 
-### Per-job weapon type and WS priority
-1. Open `OmniChain_GUI.html` in a browser and edit each job's weapon type and WS priority list (higher = first).
-2. Put the exported `omnichain_config.json` into the `OmniChain/` folder (or `OmniChain/data/`).
-3. Run `//omni reload` in game (it is also read automatically on job change).
+- For each job you choose a weapon type and a WS priority list. When TP is at or above the minimum (default 1000), the addon uses the first WS that continues the chain.
+- Chain rules follow [BG-Wiki: Skillchain](https://www.bg-wiki.com/ffxi/Skillchain). Light on Light and Darkness on Darkness each chain one more time. Nothing chains after Radiance or Umbra.
+- `sc_dict.lua` holds the chain properties of about 220 weapon skills, 31 blood pacts and 12 automaton weapon skills.
+- Chains are detected from the action packet (0x028). The chat line `Skillchain: <name>.` is only a fallback. It counts moves by party and alliance members and their pets, by trusts, and by players outside the party when they hit the enemy you are targeting. Enemy moves never open a window.
+- Pet skills, WS you have not learned and WS for another weapon type are skipped. A WS that missed does not count as an opener.
+- When an automatic WS fails (out of range, not enough TP, interrupted), the reason appears in chat. The same reason is shown at most once per 10 seconds.
+- `//omni check` tests whether every WS on your list is usable right now. It also runs on load and on job change.
+- The chain HUD shows the time left in the window and the next WS. It is hidden by default; `//omni hud on` shows it. Resize it with the mouse wheel over it, or by dragging the corner marker at the bottom right.
+- `OmniChain_GUI.html` opens in a browser and lets you edit each job's weapon type, WS list and minimum TP, then export `omnichain_config.json`.
 
-From `omnichain_config.json` the addon reads `profiles` (weapon type, WS priority), `min_tp` and `wait_delay`. Without a JSON file, `profiles` uses the built-in defaults and `min_tp` / `wait_delay` come from `data/settings.xml` (the WS priority is not stored in `settings.xml`).
+## How a WS is chosen
 
-Weapon types must be written exactly as: `Hand-to-Hand`, `Dagger`, `Sword`, `Great Sword`, `Axe`, `Great Axe`, `Scythe`, `Polearm`, `Katana`, `Great Katana`, `Club`, `Staff`, `Archery`, `Marksmanship`. WS names must match the English names in the game (for example `Tachi: Shoha`, `Savage Blade`).
+The addon acts only while you are engaged. It waits until TP is at the minimum and the delay since your last WS (default 1.2 s) has passed. It never uses a WS while the enemy is out of view or too far to target (`valid_target` is `false`).
 
-Add `"opener_only": true` to a job to make the first WS in its list **opener-only**: during a chain the 2nd and later entries are tried first, and the first entry is used only when none of them connects (for example SAM: open with Tachi: Kasha, and after Detonation use Tachi: Shoha for Gravitation instead of Kasha). Add this by hand to `omnichain_config.json` - the editor does not handle it.
+1. If at least 3 people, you included, are targeting the same enemy, it skips chaining and uses the max-power WS at 1500 TP or more (`//omni focus`, see below).
+2. It removes pet skills, WS you have not learned and WS for another weapon.
+3. While a chain window is open, it goes down the priority list and uses the first WS that makes a skillchain. With `opener_only`, the first entry is tried last.
+4. If nothing connects, it uses the top usable WS when `auto_mode` is `flexible` (the default). Otherwise it does nothing.
+5. With no window open, the top usable WS starts a chain. In manual opener mode it waits for an opener instead.
+6. If a party member is predicted to use a WS soon that your chosen WS would not let them continue, it is replaced by a WS that would (`//omni toss`).
 
-### Main settings (`data/settings.xml`)
+Chains belong to an enemy. If the enemy with the chain is not your current target, the addon treats it as no window and starts from an opener again.
 
-| Setting | Default | Description |
-| :--- | :--- | :--- |
-| `enabled` | `true` | Auto skillchain ON / OFF (`//omni on` / `off`) |
-| `min_tp` | `1000` | Minimum TP to use a WS |
-| `wait_delay` | `1.2` | Seconds to wait after a WS before the next one |
-| `start_mode` | `auto` | `auto`: the first WS is automatic / `manual`: you use the first WS (`//omni start`) |
-| `follow_wait` | `6.0` | In `manual`, seconds to wait after the previous WS lands before the auto WS (`//omni wait`) |
-| `trust_solo` | `true` | Do not auto-WS while a solo-skillchain trust is performing one (`//omni solo`) |
-| `solo_start_wait` | `12.0` | Seconds to wait for the trust's first WS after its ability (`//omni solo start`) |
-| `solo_gap` | `11.0` | Seconds to wait from one trust WS to the next; past this the solo chain counts as over (`//omni solo gap`) |
-| `auto_mode` | `flexible` | `flexible`: if nothing connects during a window, still use the top usable WS / otherwise: do nothing |
-| `debug_logging` | `true` | Write the log file |
+## Places with many enemies (v7.4)
 
----
+**Other enemies are ignored.** In places such as the new Limbus, where many enemies are linked and killed one at a time, the people in your party are fighting different enemies. Counting their WS used to overwrite your enemy's chain state, erase it when their chain ended, and make you wait for their windows. Now only WS that land on the enemy you are targeting count.
 
-## Commands (`//omni` or `//omnichain`)
+**No WS out of reach (`//omni reach <distance>`).** Melee WS are used only when the distanceplus distance is 3.5 or less (range 1 to 8, default 3.5). In game, a distance of 3.4 was within reach. Bows and guns use a distance that includes the enemy's size. distanceplus is a separate Windower addon; OmniChain calculates the same number itself and does not need it.
 
-### Basic controls
+**Max-power WS (`//omni focus`).** When many people hit the same enemy, tossing and chaining are hard to line up. If at least 3 people, you included, target the same enemy, the addon stops chaining and uses the prime or empyrean WS, at 1500 TP or more.
 
-| Command | Description | Example |
-| :--- | :--- | :--- |
-| `//omni on` / `//omni off` | Auto skillchain ON / OFF (`enable` / `disable` also work) | `//omni on` |
-| `//omni start manual\|auto` | You use the first WS (manual opener) / the addon does | `//omni start manual` |
-| `//omni wait <sec>` | Wait before the auto WS in manual opener mode (0-9, default 6) | `//omni wait 5` |
-| `//omni minfollow <sec>` | Minimum seconds from the previous WS (anyone's) to the next auto WS (4-8, default 4) | `//omni minfollow 4` |
-| `//omni focus [on\|off]` | When at least 3 people (you included) target the same enemy, skip chains and use the max-power WS (default ON) | `//omni focus off` |
-| `//omni focuspeople <n>` | Number of people (you included) for the max-power WS (2-18, default 3) | `//omni focuspeople 3` |
-| `//omni focustp <TP>` | TP at which the max-power WS is used (1000-3000, default 1500) | `//omni focustp 1500` |
-| `//omni toss [on\|off]` | Predict a party member's next WS and pick a WS they can continue (default ON) | `//omni toss off` |
-| `//omni reach <distance>` | Distance at which melee WS may be used (1-8, default 3.5; the same number distanceplus shows) | `//omni reach 3.5` |
-| `//omni solo [on\|off]` | Wait for trusts' solo chains to finish (`start <sec>` / `gap <sec>` tune the waits) | `//omni solo on` |
-| `//omni hud [on\|off]` | Show / hide the chain HUD (chain window, next WS) | `//omni hud on` |
-| `//omni size <n>` | HUD font size (6-40). Also by mouse wheel over the HUD or by dragging the bottom-right corner marker; the size is saved | `//omni size 9` |
-| `//omni reload` | Reload `omnichain_config.json` | `//omni reload` |
-| `//omni status` | Show the current settings, job and priority list | `//omni status` |
-| `//omni check` | Check whether the WS in the priority list are usable now | `//omni check` |
+- Party and alliance members count; trusts do not. People on other enemies do not stop it from switching.
+- Change the head count with `//omni focuspeople <n>` (2 to 18, default 3) and the TP with `//omni focustp <TP>` (1000 to 3000, default 1500). `//omni focus off` turns it off.
+- Other players' targets are read from `mob.target_index`. In my tests this worked for alliance members too.
+- The WS is the prime WS if you wear a prime weapon, otherwise the empyrean WS for your weapon type, otherwise the first usable entry on your list. Dojikiri Yasutsuna uses Tachi: Shoha; that was my own choice.
+- I know of no source that ranks WS by damage, so "max-power" here just means the prime or empyrean WS, and another WS may hit harder.
 
-### Log
+| Weapon type | Prime weapon | Prime WS | Empyrean WS |
+| :--- | :--- | :--- | :--- |
+| Hand-to-Hand | Varga Purnikawa | Maru Kala | Victory Smite |
+| Dagger | Mpu Gandring | Ruthless Stroke | Rudra's Storm |
+| Sword | Caliburnus | Imperator | Chant du Cygne |
+| Great Sword | Helheim | Fimbulvetr | Torcleaver |
+| Axe | Spalirisos | Blitz | Cloudsplitter |
+| Great Axe | Laphria | Disaster | Ukko's Fury |
+| Scythe | Foenaria | Origin | Quietus |
+| Polearm | Gae Buide | Diarmuid | Camlann's Torment |
+| Katana | Dokoku | Zesho Meppo | Blade: Hi |
+| Great Katana | Kusanagi | Tachi: Mumei | Tachi: Fudo |
+| Club | Lorg Mor | Dagda | Dagan |
+| Staff | Opashoro | Oshala | Myrkr |
+| Archery | Pinaka | Sarv | Jishnu's Radiance |
+| Marksmanship | Earp | Terminus | Wildfire |
 
-| Command | Description | Example |
-| :--- | :--- | :--- |
-| `//omni log [on\|off\|clear]` | Toggle / clear the log file | `//omni log clear` |
-| `//omni log tail [n]` | Show the latest entries in chat | `//omni log tail 10` |
-| `//omni log err [n]` | Show only errors and warnings in chat | `//omni log err` |
+**Tossing (`//omni toss`).** Some players use the same WS again and again. The addon predicts their next WS and, when it is close, picks a WS that leaves a property that WS can continue. Trusts are excluded.
 
-See `COMMANDS.txt` for details.
+- A player qualifies if at least 60% of their last 8 WS were the same one. The next time is estimated from the median interval.
+- It acts only when their next WS is 2.5 to 8 seconds away. Otherwise your list applies as usual.
+- The goal is to leave a property they can continue. Whether they use their WS is up to them.
+- In Temenos I tried it 8 times, and the other player continued the chain only once. They use their WS on their own timing, and 8 tries is a small sample, so treat it as a rough guide.
+- `//omni toss off` turns it off.
 
----
+## Playing with trusts (v7.3)
 
-## WS selection logic
+**Waiting for solo chains (`//omni solo`).** Some trusts perform a skillchain on their own, and an automatic WS from you in the middle would break it. When one of the trusts below uses its trigger ability, the addon holds its WS until the solo chain is over. The HUD shows "Waiting on solo chain: name (n s left)". It stops waiting if no first WS comes 12 seconds after the ability, or if 11 seconds pass between two WS.
 
-When TP is at least the minimum and the wait time since the last use has passed, a WS is chosen in this order:
-
-1. **Narrow down to usable WS**: pet skills, WS you have not learned and WS for another weapon are removed.
-2. **A chain window is open**: the priority list is evaluated from the top; the **first WS that makes a skillchain** with the current property is used.
-3. **Nothing connects**: with `auto_mode` = `flexible` the top usable WS is used (otherwise nothing is used).
-4. **No chain window**: the top usable WS opens a chain (in `manual` mode nothing is used - the addon waits for an opener).
-
-### Manual opener mode (`//omni start manual`)
-* You use the first WS. If someone else's WS becomes the opener, the addon continues with that property.
-* The auto WS waits `follow_wait` seconds (default 6) after the previous WS (anyone's) lands. If another WS lands while waiting, the decision is made again from that result and the wait restarts.
-* The chain window is treated as 10 s and as 1 s shorter with each further chain (`auto` mode does the same since v7.3.1).
-
-### Chain rules
-* Properties A1, A2, A3 of the first WS and B1, B2, B3 of the second are matched in the order **A1+B1 -> A1+B2 -> A1+B3 -> A2+B1 ...**; the first match is used.
-* From the 2nd chain on, only the chain that just occurred is used as A1.
-* Light->Light / Darkness->Darkness works one more time and then no WS chains.
-* After Radiance / Umbra nothing chains (a Light / Darkness WS stacked on an opener's aeonic Light / Darkness also ends as Light->Light / Darkness->Darkness).
-* A chain belongs to an enemy. If the enemy with the chain differs from your current target, the addon behaves as if there is no window and starts from an opener.
-* **Aeonic weapons**: when you use that WS with your own aeonic weapon (for example the Shoha of Dojikiri Yasutsuna), the aftermath Light / Darkness is put first in the property list (it also applies to the WS that triggers the aftermath). Other players' weapons are unknown, so it is not added to party members' aeonic WS.
-* **Receiving chains**: packets are the source of truth. The `Skillchain: <name>.` chat line can arrive several seconds late, so it is ignored for 10 s after a packet updates the state.
-
----
-
-## Trusts and solo skillchains
-
-* Trust moves count as openers / chain steps just like a player's WS. Their properties are read from the game resources (`res/monster_abilities.lua`); only moves without a property in the resources (two moves of Mumor II) are filled in by `TRUST_WS_EXTRA` in `sc_dict.lua`. A move without chain properties is not used as an opener.
-* **Trusts that aim for a solo skillchain** (Iroha, Iroha II, Noillurie, Gilgamesh, Ark GK): when one of them uses its trigger ability, the addon does not auto-WS until the solo chain is over.
-
-| Trust | Trigger ability | Last move of the solo chain |
+| Trust | Trigger ability | End of the solo chain |
 | :--- | :--- | :--- |
 | Iroha / Iroha II | Meditate | Amatsu: Gachirin |
 | Noillurie | Sekkanoki | Tachi: Kaiten |
-| Gilgamesh | Sekkanoki | (unknown) |
-| Ark GK | Meditate, Hagakure, Sekkanoki | (not fixed; ends after 2 moves) |
+| Gilgamesh | Sekkanoki | unknown (the wait ends when no WS follows within `solo_gap`) |
+| Ark GK | Meditate, Hagakure, Sekkanoki | after 2 moves |
 
-* Tenzen also does solo chains, but his order of moves changes each time and lasts about 40 s, so the addon interjects instead of waiting.
-* The wait ends when: the last move appears / a Light->Light or Darkness->Darkness chain closes / the trust uses no WS for `solo_gap` seconds / no WS comes `solo_start_wait` seconds after the ability.
-* Ark GK's wait is released after 2 moves; your WS continues the chain made by the 2nd.
-* Healing and buff moves (for example Iroha's Rise From Ashes) do not count as solo-chain moves.
-* While waiting, the HUD shows "Waiting on solo chain: <name> (<n>s left)". The log category is `TRUST_SOLO`.
+Tenzen also does solo chains, but the order changes every time and lasts about 40 seconds, so the addon does not wait for him. Healing and buff moves, such as Iroha's Rise From Ashes, do not count. `//omni solo off` turns the wait off.
 
-### Moves that are not continued
-After these moves your WS did not chain even when stacked (checked repeatedly in game), so the chain is treated as over and the next one starts from an opener (see `NO_FOLLOW` in `sc_dict.lua`):
-* **Iroha / Iroha II's Gachirin** - after the last move of the solo chain or after any other use, a WS 3-7 s later never chained.
-* **Selh'teus's moves** (Revelation, Luminous Lance) - a WS 4-5 s later did not chain 13 times out of 13.
+**Moves that are not continued.** In my tests, a WS used after these moves did not chain, so the addon starts a new chain from an opener instead:
 
-Trusts chain with each other after these moves; their result is read as usual and your WS continues it.
+- Iroha / Iroha II's Gachirin: about 4 tests, WS 3 to 7 seconds later, none chained.
+- Selh'teus's moves (Revelation, Luminous Lance): a WS 4 to 5 seconds later did not chain in 13 out of 13. I have not tested other intervals.
 
-### Other behavior
-* **Jumps**: abilities such as Jump / High Jump / Super Jump arrive in the same form as WS and are not mistaken for WS.
-* **Chainbound**: when an enemy becomes chainbound, the first WS from about 3 s later chains regardless of the previous property. The addon waits 3.3 s and prefers a WS that makes a continuable Light / Darkness. A Light / Darkness made from a Light / Darkness WS is not continued. A WS that lands within 3 s does not chain and does not count as an opener.
-* **WS of people outside the party**: against enemies fought together with outsiders, an outsider's WS on the enemy you are targeting also counts toward the chain.
+Trusts do chain with each other after these moves. The addon reads that result as usual and lets you continue it.
 
----
+**Minimum wait (`//omni minfollow <sec>`).** The window opens about 3 seconds after a WS lands. A WS used before that does not chain and also breaks the chain for everyone else. So the addon waits `minfollow` seconds after the previous WS, anyone's, before using one. The default and the floor are 4 seconds, up to 8.
 
-## Notes
+The window gets shorter as the chain goes on. The addon assumes 10 seconds minus the number of chains so far, with a floor of 4 seconds, and shortens the wait so that the WS is sent 2 seconds before the window closes (3.3 seconds at the shortest). With `minfollow` at 6, it still uses the WS 5 seconds after the third chain and 4 seconds after the fourth.
 
-* Use of external tools is at your own risk.
+If every WS since the opener is yours and you have 3000 TP, it does not wait for `minfollow` and uses the WS 3.3 seconds in, when the window opens, so TP is not wasted. When others joined the chain, it waits as usual.
 
----
+**Other behavior.**
+
+- Aeonic Light or Darkness counts only while the aftermath is active. To close a Light or Darkness that someone else made, the addon prefers a WS that already has Light or Darkness itself, such as Tachi: Fudo.
+- Chainbound: when an enemy is chainbound, the first WS from about 3 seconds later chains whatever the previous property was. The addon waits 3.3 seconds and prefers a WS that makes a Light or Darkness it can continue (Tachi: Kasha for a Samurai). A WS that lands within those 3 seconds neither chains nor counts as an opener.
+- A trust's normal attack that arrives in the same packet form as a special move, as Ashera's does, is not read as a WS.
+- A trust move wiped by an enemy's shadows is not treated as an opener.
+- Jump, High Jump and similar abilities arrive in the same form as WS and are not mistaken for WS.
+
+## Manual opener, opener-only WS and aeonic weapons (v7.2)
+
+**Manual opener mode (`//omni start manual`).** By default (`//omni start auto`), the top WS on your list opens a chain. In manual mode you use the first WS yourself and the addon links the rest. The opener can also be another player's WS. The addon then waits `follow_wait` seconds (default 6, `//omni wait <sec>`, range 0 to 9) after the previous WS lands, instead of acting at once at 1000 TP. If another WS lands while it waits, it re-evaluates from that result and restarts the wait.
+
+The window is 3 to 10 seconds after a WS ([BG-Wiki](https://www.bg-wiki.com/ffxi/Skillchain)) and gets 1 second shorter with each chain. The addon starts at 10 seconds and never waits past 2 seconds before the window closes. If a 6-second wait loses the chain, try `//omni wait 5`.
+
+**Opener-only WS (`opener_only`).** A Samurai chain starts with Tachi: Ageha (Compression, Scission). After Detonation, Ageha and Tachi: Shoha both give Gravitation, and with Ageha at the top of the list the addon used it again. Setting `"opener_only": true` on a job makes the first entry on its list opener-only: during a chain the second and later entries are tried first, and the first entry is used only if none of them connects.
+
+```json
+"SAM": {
+    "weapon": "Great Katana",
+    "opener_only": true,
+    "ws_priority": [
+        "Tachi: Ageha",
+        "Tachi: Shoha",
+        "Tachi: Jinpu",
+        "Tachi: Kasha",
+        "Tachi: Fudo"
+    ]
+}
+```
+
+The sample config that ships with the addon already has this set up for Samurai.
+
+The editor does not handle `opener_only`; add it to `omnichain_config.json` by hand.
+
+**Aeonic weapons.** When you use that WS with your own aeonic weapon, the aftermath adds a Light or Darkness property to it, including the WS that triggers the aftermath. Tachi: Shoha, for example, is Fragmentation and Compression on an ordinary weapon, but Light, Fragmentation and Compression with Dojikiri Yasutsuna. The addon now includes that Light or Darkness when it judges your own WS. All 14 aeonic weapons are covered, from [BG-Wiki: REMA Cheat Sheet](https://www.bg-wiki.com/ffxi/REMA_Cheat_Sheet). Other players' weapons are unknown, so nothing is added to their aeonic WS.
+
+**Also in v7.2.** If you kill the enemy mid-chain and auto-target the next one, the addon no longer continues the old chain; it remembers which enemy each chain belongs to. The chat line `Skillchain: <name>.` can arrive 4 to 7 seconds after the packet and used to overwrite the newer state, so packets are now the source of truth and the chat line is ignored for 10 seconds after a packet.
+
+## Configuration
+
+Open `OmniChain_GUI.html` in a browser, edit each job's weapon type and WS list (the top entry has the highest priority), and put the exported `omnichain_config.json` in the `OmniChain/` folder (or `OmniChain/data/`). Run `//omni reload` in game; the file is also read on job change.
+
+From that file the addon reads `profiles` (weapon type and WS list), `min_tp` and `wait_delay`. Without it, `profiles` uses the built-in defaults, and `min_tp` and `wait_delay` come from `data/settings.xml`. The WS list is not stored in `settings.xml`.
+
+Weapon types must be written exactly as: `Hand-to-Hand`, `Dagger`, `Sword`, `Great Sword`, `Axe`, `Great Axe`, `Scythe`, `Polearm`, `Katana`, `Great Katana`, `Club`, `Staff`, `Archery`, `Marksmanship`. WS names must match the game's English names, for example `Tachi: Shoha` or `Savage Blade`.
+
+Settings in `data/settings.xml`:
+
+| Setting | Default | Meaning |
+| :--- | :--- | :--- |
+| `enabled` | `true` | Auto skillchain on or off (`//omni on` / `off`) |
+| `min_tp` | `1000` | Minimum TP to use a WS |
+| `wait_delay` | `1.2` | Seconds to wait after a WS before the next one |
+| `start_mode` | `auto` | `auto`: the first WS is automatic. `manual`: you use it (`//omni start`) |
+| `follow_wait` | `6.0` | In `manual`, seconds after the previous WS lands before the auto WS (`//omni wait`) |
+| `min_follow` | `4.0` | Minimum seconds after anyone's previous WS (`//omni minfollow`) |
+| `focus_max` | `true` | Use the max-power WS when many people share a target (`//omni focus`) |
+| `focus_people` | `3` | People needed, you included (`//omni focuspeople`) |
+| `focus_tp` | `1500` | TP for the max-power WS (`//omni focustp`) |
+| `toss` | `true` | Predict a party member's next WS and leave a property they can continue (`//omni toss`) |
+| `ws_reach` | `3.5` | Distance at which melee WS may be used (`//omni reach`) |
+| `trust_solo` | `true` | Hold WS while a solo-chain trust is working (`//omni solo`) |
+| `solo_start_wait` | `12.0` | Seconds to wait for the trust's first WS after its ability (`//omni solo start`) |
+| `solo_gap` | `11.0` | Seconds between two trust WS before the solo chain counts as over (`//omni solo gap`) |
+| `auto_mode` | `flexible` | `flexible`: use the top usable WS even if nothing connects. Anything else: do nothing |
+| `show_hud` | `false` | Show the chain HUD (`//omni hud on`) |
+| `debug_logging` | `true` | Write `omnichain_debug.log`. It is on by default; `//omni log off` stops it |
+
+## Commands (`//omni` or `//omnichain`)
+
+| Command | Description |
+| :--- | :--- |
+| `//omni on` / `//omni off` | Auto skillchain on or off (`enable` / `disable` also work) |
+| `//omni start manual\|auto` | You use the first WS / the addon does |
+| `//omni wait <sec>` | Wait in manual opener mode (0 to 9, default 6) |
+| `//omni minfollow <sec>` | Minimum seconds from the previous WS to the next auto WS (4 to 8, default 4) |
+| `//omni focus [on\|off]` | Max-power WS when many people share a target (default on) |
+| `//omni focuspeople <n>` | People needed, you included (2 to 18, default 3) |
+| `//omni focustp <TP>` | TP for the max-power WS (1000 to 3000, default 1500) |
+| `//omni toss [on\|off]` | Predict a party member's next WS and leave a property they can continue (default on) |
+| `//omni reach <distance>` | Distance at which melee WS may be used (1 to 8, default 3.5) |
+| `//omni solo [on\|off]` | Wait for trusts' solo chains (`start <sec>` and `gap <sec>` tune the waits) |
+| `//omni hud [on\|off]` | Show or hide the chain HUD |
+| `//omni size <n>` | HUD font size (6 to 40) |
+| `//omni reload` | Reload `omnichain_config.json` |
+| `//omni status` | Show settings, job and priority list |
+| `//omni check` | Check that every WS on the list is usable now |
+| `//omni log [on\|off\|clear]` | Turn the log file on or off, or clear it |
+| `//omni log tail [n]` | Show the latest log entries in chat |
+| `//omni log err [n]` | Show only errors and warnings in chat |
+
+`COMMANDS.txt` has the details.
 
 ## License and credits
 
-* **Author**: hikaruoshino (English edition prepared by the same author)
-* **Environment**: Windower 4, English client
-* **Libraries used**: `luau`, `config`, `texts`, `resources`, `packets`, `json`
-* **Chain data**: [BG-Wiki](https://www.bg-wiki.com/) (Skillchain, weapon skill pages, blood pacts, automaton weapon skills) and the Windower resources
-
----
+- Author: hikaruoshino. MIT License (see `LICENSE`).
+- Chain data: [BG-Wiki](https://www.bg-wiki.com/) (skillchains, weapon skill pages, blood pacts, automaton weapon skills) and the Windower resources.
 
 ## Changelog
 
-The English edition follows the Japanese release numbers; the notes below are translated from the Japanese changelog.
+The English edition uses the same version numbers as the Japanese one.
 
-* **v7.4.1 (2026-10-19)**
-  * **New condition for the max-power WS**: changed from "when everyone targets the same enemy" to **"when at least 3 people, you included, target the same enemy"** (people on other enemies are still counted; with only 2, a normal chain is stronger). Change the number with `//omni focuspeople`.
-  * **Alliance members are counted** (a10-a15, a20-a25); trusts are not counted.
-  * **WS TP is now 1500** (was 3000). Change it with `//omni focustp`.
-  * **No WS on untargetable enemies**: when the enemy is not drawn or is too far to target (`valid_target` is `false`), no WS is used.
-* **v7.4.0 (2026-10-19)**
-  * **WS on other enemies are not counted**: in places where many enemies are linked and killed one by one, a party member's WS on a different enemy used to be counted as your chain. Only moves on the enemy you target are used now.
-  * **No WS out of reach**: melee WS only when the distanceplus distance is 3.5 or less (`//omni reach`). Bows and guns use a distance that includes the enemy's size.
-  * **Everyone on the same enemy**: use the max-power WS instead of chaining (`//omni focus`). Prime weapon -> its prime WS, otherwise the empyrean WS per weapon type, falling back to the top of the priority list. Dojikiri Yasutsuna uses Tachi: Shoha. Other players' targets are read from `mob.target_index`.
-  * **Tosses to party members**: predicts the next WS of someone who uses a fixed WS (60%+ of their last 8) from the median interval and, when it is close (2.5-8 s away), picks a WS whose property they can continue (`//omni toss`). Trusts are excluded.
-  * **At TP 3000**: if every WS since the opener is yours, the WS is used when the window opens at 3.3 s without waiting `minfollow`.
-  * **`minfollow` floor is 4 s** (range 4-8, default 4).
-* **v7.3.1 (2026-10-11)**
-  * Chainbound fix: wait 3.3 s, then prefer the WS that makes a continuable Light / Darkness; a WS that lands before the window opens does not count as an opener.
-  * Window estimate is "10 s - number of chains" (floor 4 s), and the `minfollow` wait is shortened automatically so the WS lands 2 s before the window closes (minimum 3.3 s).
-  * A trust's normal attack that arrives in the same form as a special move is no longer read as a WS.
-  * A trust move removed by an enemy shadow is no longer treated as an opener.
-* **v7.3.0 (2026-10-10)**
-  * Waiting for trusts' solo skillchains (`//omni solo`).
-  * Aeonic Light / Darkness is used only while aftermath is active.
-  * Support for the window shrinking by 1 s per chain.
-  * Moves that are not continued (Iroha's Gachirin, Selh'teus's moves).
-  * Minimum wait of 3.3 s after the previous WS (`//omni minfollow`).
-  * Chainbound, jump abilities and outsiders' WS are handled.
-  * Two Mumor II moves without properties in the resources were filled in; the properties of 111 trusts / 303 moves were compared with the wiki.
-  * Development-only features (monitor window, detailed packet logging, console.log monitor) were removed from the public build. File logging and chat warnings remain.
-* **v7.2.0 (2026-10-09)**
-  * Manual opener mode, opener-only WS, aeonic Light / Darkness, fix for late chat lines overwriting the state, restart from an opener when the enemy changes.
-* **v7.1.0 (2026-10-06)**
-  * Error / warning notices, new logging, automatic skipping of unusable WS, misses are not openers, wiki-based chain rules, a reviewed property database, `//omni check`, `COMMANDS.txt`.
-* **v7.0.x and earlier**
-  * Debug log, official WS names and prime WS for all 14 weapon types, a bigger web editor, type-cast protection, automaton WS (12) and blood pacts (30) tracking, and the first release (v6.0.0, 2026-10-01).
+- **v7.4.1 (2026-10-19)**: The max-power WS now needs at least 3 people, you included, on the same enemy (it used to need everyone), and alliance members count (`//omni focuspeople`). It is used at 1500 TP instead of 3000 (`//omni focustp`). No WS is used while the enemy cannot be targeted.
+- **v7.4.0 (2026-10-19)**: WS on other enemies are not counted. Melee WS wait until the distanceplus distance is 3.5 or less (`//omni reach`). Added the max-power WS (`//omni focus`) and tossing (`//omni toss`). At 3000 TP the WS is used 3.3 seconds in. The `minfollow` floor is 4 seconds.
+- **v7.3.1 (2026-10-11)**: Chainbound handling fixed. The wait shortens automatically as the chain continues. A trust's normal attack is no longer read as a WS, and a trust move wiped by shadows is no longer an opener.
+- **v7.3.0 (2026-10-10)**: Waiting for trusts' solo chains (`//omni solo`). New chains after moves that are not continued. Minimum wait (`//omni minfollow`). Aftermath check. Handling of chainbound, jump abilities and WS of players outside the party. The monitor window and console.log monitor were removed.
+- **v7.2.0 (2026-10-09)**: Manual opener mode, `opener_only`, aeonic Light and Darkness (14 weapons), restart when the enemy changes, and a fix for late chat lines overwriting the state.
+- **v7.1.0 (2026-10-06)**: Notices for failed WS, `//omni check`, a chain-rule and property-data review against the wiki, HUD resizing, `COMMANDS.txt` and the MIT license.
+- **v7.0.3 and earlier**: Official WS names and prime WS for all 14 weapon types, automaton WS and blood pact chains, a larger config editor, and the first release (v6.0.0, 2026-10-01).

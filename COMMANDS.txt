@@ -15,7 +15,9 @@
                                       When your WS or someone else's becomes the opener, the
                                       addon continues with that property. The auto WS waits the
                                       configured time after the previous WS lands (so others
-                                      can interject). The chain window is treated as 10 s.
+                                      can interject). The chain window is assumed to be 10 s at
+                                      first and 1 s shorter with each further chain; the wait never
+                                      goes past 2 s before the window closes.
  //omni start auto                    The first WS is automatic too (default, as before)
  //omni start                         Show the current opener mode
  //omni wait <sec>                    Wait time in manual opener mode (0-9, default 6)
