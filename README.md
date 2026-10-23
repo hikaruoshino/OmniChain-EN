@@ -1,14 +1,14 @@
-# OmniChain (v7.4.1, English edition)
+# OmniChain (v7.4.2, English edition)
 
 OmniChain is a Windower 4 addon for Final Fantasy XI. It watches the weapon skills your party uses, and the blood pacts and automaton moves of pets, and uses the first weapon skill (WS) on your priority list that continues the current skillchain. When no chain is open, it uses the top usable WS on your list to start one. It supports all 22 jobs and all 14 weapon types.
 
-This is the English edition of [OmniChain](https://github.com/hikaruoshino/OmniChain), which is written in Japanese. The logic is the same as the Japanese v7.4.1. Messages, command help, the config editor and the data tables use the English names from the game's resources.
+This is the English edition of [OmniChain](https://github.com/hikaruoshino/OmniChain), which is written in Japanese. The logic is the same as the Japanese v7.4.2. Messages, command help, the config editor and the data tables use the English names from the game's resources.
 
 ## Notice
 
 This addon types weapon skills for you. Third-party tools, Windower included, are not permitted by the FFXI terms of service. Your account may be penalized, and the author takes no responsibility for any harm from using it. Use it at your own risk, and do not leave it running unattended.
 
-I have used the Japanese v7.4.1 in game. This English build has only been run in a simulated environment, because I play on the Japanese client. Some situations (trusts, large alliances) are hard to test alone, so reports are welcome as GitHub issues. After loading, `//omni check` tells you whether every WS name on your list is recognized by the game; the English names are the part most likely to be wrong.
+I have used the Japanese v7.4.2 in game. This English build has only been run in a simulated environment, because I play on the Japanese client. Some situations (trusts, large alliances) are hard to test alone, so reports are welcome as GitHub issues. After loading, `//omni check` tells you whether every WS name on your list is recognized by the game; the English names are the part most likely to be wrong.
 
 In game with the Japanese build, the Samurai six-step chain (Ageha, Jinpu, Shoha, Shoha, Kasha, Fudo) went through in Temenos, and alliance members' targets could be read.
 
@@ -38,7 +38,7 @@ The only requirement is Windower 4. The libraries used (`luau`, `config`, `texts
 
 ## How a WS is chosen
 
-The addon acts only while you are engaged. It waits until TP is at the minimum and the delay since your last WS (default 1.2 s) has passed. It never uses a WS while the enemy is out of view or too far to target (`valid_target` is `false`).
+The addon acts only while you are engaged. It waits until TP is at the minimum and the delay since your last WS (default 1.2 s) has passed. After the game refuses a WS with "cannot see target", it waits 2 s before trying again.
 
 1. If at least 3 people, you included, are targeting the same enemy, it skips chaining and uses the max-power WS at 1500 TP or more (`//omni focus`, see below).
 2. It removes pet skills, WS you have not learned and WS for another weapon.
@@ -53,7 +53,7 @@ Chains belong to an enemy. If the enemy with the chain is not your current targe
 
 **Other enemies are ignored.** In places such as the new Limbus, where many enemies are linked and killed one at a time, the people in your party are fighting different enemies. Counting their WS used to overwrite your enemy's chain state, erase it when their chain ended, and make you wait for their windows. Now only WS that land on the enemy you are targeting count.
 
-**No WS out of reach (`//omni reach <distance>`).** Melee WS are used only when the distanceplus distance is 3.5 or less (range 1 to 8, default 3.5). In game, a distance of 3.4 was within reach. Bows and guns use a distance that includes the enemy's size. distanceplus is a separate Windower addon; OmniChain calculates the same number itself and does not need it.
+**No WS out of reach (`//omni reach <distance>`).** Melee WS are used only when the distanceplus distance is 3.5 or less (range 1 to 8, default 3.5; for an enemy whose `model_size` is above 2, the distance is widened by the amount above 2). In game, a distance of 3.4 was within reach. Bows and guns use a distance that includes the enemy's size. distanceplus is a separate Windower addon; OmniChain calculates the same number itself and does not need it.
 
 **Max-power WS (`//omni focus`).** When many people hit the same enemy, tossing and chaining are hard to line up. If at least 3 people, you included, target the same enemy, the addon stops chaining and uses the prime or empyrean WS, at 1500 TP or more.
 
@@ -216,7 +216,8 @@ Settings in `data/settings.xml`:
 
 The English edition uses the same version numbers as the Japanese one.
 
-- **v7.4.1 (2026-10-19)**: The max-power WS now needs at least 3 people, you included, on the same enemy (it used to need everyone), and alliance members count (`//omni focuspeople`). It is used at 1500 TP instead of 3000 (`//omni focustp`). No WS is used while the enemy cannot be targeted.
+- **v7.4.2 (2026-10-24)**: Fixed the auto WS stopping on big enemies. (1) The `valid_target` pre-check is gone: on big enemies it could stay `false` (or flip between true and false) while a manual WS still worked. Now the addon only waits 2 s right after the game refuses with "cannot see target". (2) The melee reach is the fixed 3.5 (`ws_reach`) plus the amount the enemy's `model_size` is above 2, because big enemies can be hit from farther than 3.5. Enemies with `model_size` 2 or less keep 3.5. Confirmed in game: the auto WS no longer stops against a big enemy (Awoken). Distances were not checked one by one.
+- **v7.4.1 (2026-10-19)**: The max-power WS now needs at least 3 people, you included, on the same enemy (it used to need everyone), and alliance members count (`//omni focuspeople`). It is used at 1500 TP instead of 3000 (`//omni focustp`). No WS is used while the enemy cannot be targeted (dropped in v7.4.2).
 - **v7.4.0 (2026-10-19)**: WS on other enemies are not counted. Melee WS wait until the distanceplus distance is 3.5 or less (`//omni reach`). Added the max-power WS (`//omni focus`) and tossing (`//omni toss`). At 3000 TP the WS is used 3.3 seconds in. The `minfollow` floor is 4 seconds.
 - **v7.3.1 (2026-10-11)**: Chainbound handling fixed. The wait shortens automatically as the chain continues. A trust's normal attack is no longer read as a WS, and a trust move wiped by shadows is no longer an opener.
 - **v7.3.0 (2026-10-10)**: Waiting for trusts' solo chains (`//omni solo`). New chains after moves that are not continued. Minimum wait (`//omni minfollow`). Aftermath check. Handling of chainbound, jump abilities and WS of players outside the party. The monitor window and console.log monitor were removed.

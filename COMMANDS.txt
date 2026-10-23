@@ -1,5 +1,5 @@
 ================================================================================
- OmniChain v7.4.1 (English edition) - command list
+ OmniChain v7.4.2 (English edition) - command list
 ================================================================================
  Commands start with //omni or //omnichain.
  Typing just //omni shows a short help.
@@ -37,7 +37,8 @@
  //omni toss [on|off]                 Predict a party member's next WS and pick a WS whose property
                                       lets them continue (default ON; trusts are excluded)
  //omni reach <distance>              Distance at which melee WS may be used (1-8, default 3.5;
-                                      the distance shown by distanceplus)
+                                      the distance shown by distanceplus; widened by the amount
+                                      an enemy's model_size is above 2)
  //omni hud [on|off]                  Show / hide the chain HUD (chain window, next WS)
  //omni size <n>                      HUD font size (6-40). Also by mouse wheel over the HUD, or by
                                       dragging the bottom-right corner marker (the size is saved)

@@ -1,10 +1,10 @@
 -- =============================================================================
--- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.1 - max-power WS when many people target the same enemy)
+-- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.2 - max-power WS when many people target the same enemy)
 -- =============================================================================
 
 _addon.name     = "OmniChain"
 _addon.author   = "hikaruoshino"
-_addon.version  = "7.4.1"
+_addon.version  = "7.4.2"
 _addon.commands = {"omni", "omnichain"}
 
 require("luau")
@@ -359,6 +359,7 @@ end
 
 -- Can the WS reach? Do not use it when out of range (it would just fail with "too far away").
 -- Melee WS (range 2): when the distance shown by distanceplus is at most settings.ws_reach (default 3.5) (a rule of thumb from the author).
+-- A big enemy (model_size above 2) widens the melee reach by the amount above 2.
 -- Other ranges use the same formula as distanceplus: distance < enemy model_size + range x multiplier + your model_size (range index is res range)
 local WS_RANGE_MULT = {
     [2] = 1.55, [3] = 1.490909, [4] = 1.44, [5] = 1.377778, [6] = 1.30, [7] = 1.15,
@@ -376,6 +377,12 @@ local function ws_in_range(ws_name)
         if not t or not t.distance then return true end
         local melee_reach = safe_num(settings.ws_reach, 3.5)
         local d = math.sqrt(safe_num(t.distance, 0))
+        -- A big enemy can be hit from farther away: widen the allowed distance by the amount its model_size is above 2
+        -- (small and normal enemies keep the fixed value. 2026-10-24 Awoken Gorgimera: a manual WS landed at distance 4.5 but the fixed 3.5 stopped the auto WS)
+        if t.model_size then
+            local extra = safe_num(t.model_size, 0) - 2.0
+            if extra > 0 then melee_reach = melee_reach + extra end
+        end
         return d <= melee_reach, d, melee_reach
     end
     local me = windower.ffxi.get_mob_by_target('me') or windower.ffxi.get_player()
@@ -1061,9 +1068,9 @@ local function process_auto_skillchain()
         -- Do not interrupt while a trust is doing a solo chain (use the WS after it ends)
         if choice and (choice.no_wait or follow_wait_left(now, tp) <= 0) and solo_wait_left(now) <= 0
             and not (choice.min_tp and not safe_gte(tp, choice.min_tp)) then
-            -- Do not use the WS if the enemy is not drawn on screen or is too far to target ("cannot see target")
-            local target_now = windower.ffxi.get_mob_by_target('t')
-            if target_now and target_now.valid_target == false then return end
+            -- Wait 2 s right after the game refuses with "cannot see target" (since 2026-10-24 valid_target is no longer used as a pre-check:
+            -- on big enemies such as Awoken Hakenmann or Morbol Emperor it stayed false, or flipped between true and false, and the auto WS stopped even though a manual WS worked)
+            if now < safe_num(state.unseen_until, 0) then return end
             local in_range, dist, reach = ws_in_range(choice.ws)
             if not in_range then
                 -- Do not use it until it reaches. The log line is limited to every 3 s
@@ -1616,6 +1623,7 @@ local function handle_message_packet(data)
     if FAIL_MESSAGES[msg] and state.pending_ws and p["Actor"] == state.player_id then
         log_event("WARN", "WS_FAIL", string.format("%s: %s (msg %d)", state.pending_ws.name, FAIL_MESSAGES[msg], msg))
         state.pending_ws = nil
+        if FAIL_MESSAGES[msg] == "cannot see target" then state.unseen_until = safe_num(os.clock(), 0) + 2.0 end
     end
 end
 

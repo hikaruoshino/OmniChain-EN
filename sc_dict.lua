@@ -1,5 +1,5 @@
 -- =============================================================================
--- sc_dict.lua : WS data for all 14 weapon types + PUP automaton WS + SMN blood pacts, combined skillchain matrix (v7.4.1)
+-- sc_dict.lua : WS data for all 14 weapon types + PUP automaton WS + SMN blood pacts, combined skillchain matrix (v7.4.2)
 -- =============================================================================
 
 local sc_dict = {}
