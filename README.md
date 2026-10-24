@@ -224,3 +224,7 @@ The English edition uses the same version numbers as the Japanese one.
 - **v7.2.0 (2026-10-09)**: Manual opener mode, `opener_only`, aeonic Light and Darkness (14 weapons), restart when the enemy changes, and a fix for late chat lines overwriting the state.
 - **v7.1.0 (2026-10-06)**: Notices for failed WS, `//omni check`, a chain-rule and property-data review against the wiki, HUD resizing, `COMMANDS.txt` and the MIT license.
 - **v7.0.3 and earlier**: Official WS names and prime WS for all 14 weapon types, automaton WS and blood pact chains, a larger config editor, and the first release (v6.0.0, 2026-10-01).
+
+## Feedback
+
+A one-line "it works" is welcome too. With a GitHub account you can post from [Issues](../../issues/new/choose).
