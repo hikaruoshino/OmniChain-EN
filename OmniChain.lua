@@ -353,7 +353,7 @@ local state = {
 -- Warn if an auto-executed WS gets no response within this many seconds (wrong WS name, not learned, input error, etc.)
 local PENDING_WS_TIMEOUT = 4.0
 
--- Is it in sc_dict? (find_ws_info returns a default even for unknown WS, so check separately)
+-- Is it in sc_dict? (find_ws_info also returns PUP / SMN moves, so check WEAPON_WS separately)
 local function ws_in_dict(ws_name)
     for _, ws_list in pairs(sc_dict.WEAPON_WS) do
         for _, info in ipairs(ws_list) do
@@ -481,7 +481,7 @@ local function check_ws_usable(ws_name, category)
     end
     local good = true
     if not ws_in_dict(ws_name) then
-        log_event("WARN", category, string.format("WS not in sc_dict: %s (skillchain matching will use defaults)", ws_name))
+        log_event("WARN", category, string.format("WS not in sc_dict: %s (not used for skillchains; it may still be used as an opener)", ws_name))
         good = false
     end
     local id = ws_id_by_name(ws_name)
