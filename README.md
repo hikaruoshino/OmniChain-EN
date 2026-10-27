@@ -1,14 +1,14 @@
-# OmniChain (v7.4.2, English edition)
+# OmniChain (v7.4.3, English edition)
 
 OmniChain is a Windower 4 addon for Final Fantasy XI. It watches the weapon skills your party uses, and the blood pacts and automaton moves of pets, and uses the first weapon skill (WS) on your priority list that continues the current skillchain. When no chain is open, it uses the top usable WS on your list to start one. It supports all 22 jobs and all 14 weapon types.
 
-This is the English edition of [OmniChain](https://github.com/hikaruoshino/OmniChain), which is written in Japanese. The logic is the same as the Japanese v7.4.2. Messages, command help, the config editor and the data tables use the English names from the game's resources.
+This is the English edition of [OmniChain](https://github.com/hikaruoshino/OmniChain), which is written in Japanese. The logic is the same as the Japanese v7.4.3. Messages, command help, the config editor and the data tables use the English names from the game's resources.
 
 ## Notice
 
 This addon types weapon skills for you. Third-party tools, Windower included, are not permitted by the FFXI terms of service. Your account may be penalized, and the author takes no responsibility for any harm from using it. Use it at your own risk, and do not leave it running unattended.
 
-I have used the Japanese v7.4.2 in game. This English build has only been run in a simulated environment, because I play on the Japanese client. Some situations (trusts, large alliances) are hard to test alone, so reports are welcome as GitHub issues. After loading, `//omni check` tells you whether every WS name on your list is recognized by the game; the English names are the part most likely to be wrong.
+I have used the Japanese v7.4.3 in game. This English build has only been run in a simulated environment, because I play on the Japanese client. Some situations (trusts, large alliances) are hard to test alone, so reports are welcome as GitHub issues. After loading, `//omni check` tells you whether every WS name on your list is recognized by the game; the English names are the part most likely to be wrong.
 
 In game with the Japanese build, the Samurai six-step chain (Ageha, Jinpu, Shoha, Shoha, Kasha, Fudo) went through in Temenos, and alliance members' targets could be read.
 
@@ -216,6 +216,7 @@ Settings in `data/settings.xml`:
 
 The English edition uses the same version numbers as the Japanese one.
 
+- **v7.4.3 (2026-10-28)**: Fixed a one-time freeze of about 0.2 s in combat. Looking up your weapon's name loaded the whole item resource (`res/items.lua`, about 5 MB) the first time, mid-fight. It is now loaded 3 s after load or login, outside combat (if you are engaged, it waits until you disengage). Lighter in big fights: action packets (0x028) of kinds the addon never uses (melee, ranged, magic, items) are dropped without being parsed, and the per-frame code no longer creates tables or closures. A WS that is not in the addon's table is no longer used for skillchains (before, it was given placeholder properties: Fusion, Gravitation, Fragmentation, Distortion); `//omni check` warns about it. Confirmed in game on the Japanese client: with trusts, the WS chosen for Chainbound made Light, and no freeze in combat.
 - **v7.4.2 (2026-10-24)**: Fixed the auto WS stopping on big enemies. (1) The `valid_target` pre-check is gone: on big enemies it could stay `false` (or flip between true and false) while a manual WS still worked. Now the addon only waits 2 s right after the game refuses with "cannot see target". (2) The melee reach is the fixed 3.5 (`ws_reach`) plus the amount the enemy's `model_size` is above 2, because big enemies can be hit from farther than 3.5. Enemies with `model_size` 2 or less keep 3.5. Confirmed in game: the auto WS no longer stops against a big enemy (Awoken). Distances were not checked one by one.
 - **v7.4.1 (2026-10-19)**: The max-power WS now needs at least 3 people, you included, on the same enemy (it used to need everyone), and alliance members count (`//omni focuspeople`). It is used at 1500 TP instead of 3000 (`//omni focustp`). No WS is used while the enemy cannot be targeted (dropped in v7.4.2).
 - **v7.4.0 (2026-10-19)**: WS on other enemies are not counted. Melee WS wait until the distanceplus distance is 3.5 or less (`//omni reach`). Added the max-power WS (`//omni focus`) and tossing (`//omni toss`). At 3000 TP the WS is used 3.3 seconds in. The `minfollow` floor is 4 seconds.

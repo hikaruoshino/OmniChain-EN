@@ -1,10 +1,10 @@
 -- =============================================================================
--- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.2 - max-power WS when many people target the same enemy)
+-- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.3 - max-power WS when many people target the same enemy)
 -- =============================================================================
 
 _addon.name     = "OmniChain"
 _addon.author   = "hikaruoshino"
-_addon.version  = "7.4.2"
+_addon.version  = "7.4.3"
 _addon.commands = {"omni", "omnichain"}
 
 require("luau")
@@ -109,6 +109,7 @@ local old_log_path  = windower.addon_path .. "omnichain_debug.old.log"
 local LOG_MAX_BYTES = 1024 * 1024
 local LOG_FLUSH_SEC = 2.0
 local RECENT_MAX    = 200
+local THROTTLE_MAX  = 200
 
 local monitor = {
     buffer = {},          -- lines not yet written to the file
@@ -173,6 +174,14 @@ local function log_event(level, category, message)
         if t and t.suppressed > 0 then
             message = message .. string.format(" (%d more in the last 10 s)", t.suppressed)
         end
+        if not t then
+            -- Keys grow with each distinct message, so rebuild past the limit (only the throttle history is lost)
+            monitor.throttle_n = (monitor.throttle_n or 0) + 1
+            if monitor.throttle_n > THROTTLE_MAX then
+                monitor.throttle = {}
+                monitor.throttle_n = 1
+            end
+        end
         monitor.throttle[key] = {time = clock, suppressed = 0}
     end
 
@@ -210,6 +219,17 @@ local function guarded(name, fn)
                 monitor.buffer[#monitor.buffer + 1] = tostring(err)
                 flush_log(true)
             end
+        end
+    end
+end
+
+-- For events without arguments (prerender): avoids creating a table and closures every frame
+local function guarded0(name, fn)
+    return function()
+        local ok, err = xpcall(fn, traceback)
+        if not ok and log_event("ERROR", name, tostring(err):match("^[^\n]*") or tostring(err)) then
+            monitor.buffer[#monitor.buffer + 1] = tostring(err)
+            flush_log(true)
         end
     end
 end
@@ -1101,14 +1121,8 @@ local function check_pending_ws(now)
     end
 end
 
-windower.register_event("prerender", guarded("PRERENDER", function()
-    local frame_start = os.clock()
-
-    -- WS response timeout / periodic log flush
-    check_pending_ws(frame_start)
-    if frame_start - monitor.last_flush > LOG_FLUSH_SEC then flush_log() end
-
-    local ok, err = xpcall(function()
+-- Body of prerender (defined once as a function so no closure is created every frame)
+local function prerender_body()
         -- Background auto-skillchain decision
         process_auto_skillchain()
 
@@ -1171,7 +1185,16 @@ windower.register_event("prerender", guarded("PRERENDER", function()
         hud:text(table.concat(lines, string.char(10)))
         hud:show()
         update_grip()
-    end, traceback)
+end
+
+windower.register_event("prerender", guarded0("PRERENDER", function()
+    local frame_start = os.clock()
+
+    -- WS response timeout / periodic log flush
+    check_pending_ws(frame_start)
+    if frame_start - monitor.last_flush > LOG_FLUSH_SEC then flush_log() end
+
+    local ok, err = xpcall(prerender_body, traceback)
 
     if not ok then
         -- The same error would appear every frame, so chat is grouped every 10 s on the log_event side
@@ -1628,14 +1651,23 @@ local function handle_message_packet(data)
 end
 
 -- incoming chunk packet hook
-windower.register_event("incoming chunk", guarded("PACKET", function(id, data, modified, injected, blocked)
-    id = safe_num(id, 0)
+-- Called for every packet, so packets we do not handle create no table or closure and are not parsed.
+-- The 0x028 (action) category is bits 2-5 of byte 0x0A, 0-based (Category = 0A:2 in libs/packets/fields.lua).
+-- Lua 5.1 has no bit operators, so it is taken out with division and modulo.
+-- Dropped categories: 1 melee / 2 ranged / 4 magic / 5, 9 items / 8 casting start / 12 ranged start
+-- (they flood in during big fights and none of them is used here)
+local ACTION_DROP = {[1] = true, [2] = true, [4] = true, [5] = true, [8] = true, [9] = true, [12] = true}
+local floor = math.floor
+local guarded_action  = guarded("PACKET", handle_action_packet)
+local guarded_message = guarded("PACKET", handle_message_packet)
+windower.register_event("incoming chunk", function(id, data)
     if id == 0x028 then
-        handle_action_packet(data)
+        local b = type(data) == "string" and data:byte(11)
+        if b and not ACTION_DROP[floor(b / 4) % 16] then guarded_action(data) end
     elseif id == 0x029 then
-        handle_message_packet(data)
+        guarded_message(data)
     end
-end))
+end)
 
 -- incoming text message hook
 windower.register_event("incoming text", guarded("TEXT", function(original, modified, mode, modified_mode, blocked)
@@ -1660,14 +1692,34 @@ local function schedule_priority_check()
     end
 end
 
+-- res.items (res/items.lua, about 5 MB) is loaded whole the first time it is touched, freezing the screen for about 0.2 s.
+-- That used to happen at the first WS choice in combat (looking up the weapon name), so load it early outside combat.
+-- If engaged, look again 10 s later
+local function schedule_res_warmup(delay)
+    if not (coroutine and coroutine.schedule) then return end
+    coroutine.schedule(guarded("WARMUP", function()
+        if rawget(res, "items") then return end
+        local player = windower.ffxi.get_player()
+        if player and safe_num(player.status, 0) == 1 then
+            schedule_res_warmup(10)
+            return
+        end
+        local start = os.clock()
+        local _ = res.items
+        log_debug("SYSTEM", string.format("Preloaded res.items (%.0fms)", (os.clock() - start) * 1000))
+    end), delay)
+end
+
 windower.register_event("load", guarded("LOAD", function()
     update_job_profile()
     log_debug("SYSTEM", "OmniChain v" .. _addon.version .. " Loaded")
     schedule_priority_check()
+    schedule_res_warmup(3)
 end))
 windower.register_event("login", guarded("LOGIN", function()
     update_job_profile()
     schedule_priority_check()
+    schedule_res_warmup(3)
 end))
 windower.register_event("job change", guarded("JOB", function()
     update_job_profile()

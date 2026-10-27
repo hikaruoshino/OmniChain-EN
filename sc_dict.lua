@@ -1,5 +1,5 @@
 -- =============================================================================
--- sc_dict.lua : WS data for all 14 weapon types + PUP automaton WS + SMN blood pacts, combined skillchain matrix (v7.4.2)
+-- sc_dict.lua : WS data for all 14 weapon types + PUP automaton WS + SMN blood pacts, combined skillchain matrix (v7.4.3)
 -- =============================================================================
 
 local sc_dict = {}
@@ -434,8 +434,8 @@ function sc_dict.find_ws_info(ws_name, weapon_hint)
         return { en = ws_name, sc = sc_dict.SMN_BP_DATABASE[ws_name] }
     end
 
-    -- 4. Not found: default assumed definition
-    return { en = ws_name, sc = {"Fusion", "Gravitation", "Fragmentation", "Distortion"} }
+    -- 4. Not found: nil (treated as a WS that cannot skillchain; callers check for nil)
+    return nil
 end
 
 -- Skillchain matcher: computes the chain that occurs when ws_info is used after prev_sc

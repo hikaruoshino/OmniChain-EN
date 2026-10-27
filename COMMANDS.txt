@@ -1,5 +1,5 @@
 ================================================================================
- OmniChain v7.4.2 (English edition) - command list
+ OmniChain v7.4.3 (English edition) - command list
 ================================================================================
  Commands start with //omni or //omnichain.
  Typing just //omni shows a short help.
