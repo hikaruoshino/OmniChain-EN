@@ -1,10 +1,10 @@
 -- =============================================================================
--- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.6 - per-chain limit starts over with each fight)
+-- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.7 - per-chain limit starts over with each fight)
 -- =============================================================================
 
 _addon.name     = "OmniChain"
 _addon.author   = "hikaruoshino"
-_addon.version  = "7.4.6"
+_addon.version  = "7.4.7"
 _addon.commands = {"omni", "omnichain"}
 
 require("luau")
@@ -975,7 +975,26 @@ local function is_self_target_ws(id)
     return false
 end
 
--- Can it be used with /ws right now? Excludes pet skills, names not in res, WS not learned / wrong weapon,
+-- Is the WS in sc_dict with no skillchain property at all (Sanguine Blade, Energy Drain, ...; BG-Wiki: Skillchain: None)?
+-- A WS missing from sc_dict is false (it may still open a chain). Results are cached per weapon type (the dictionary never changes)
+local no_sc_cache = {}
+local function has_no_sc(ws_name)
+    local weapon = state.active_weapon or ""
+    local by_weapon = no_sc_cache[weapon]
+    if not by_weapon then
+        by_weapon = {}
+        no_sc_cache[weapon] = by_weapon
+    end
+    local v = by_weapon[ws_name]
+    if v == nil then
+        local info = sc_dict.find_ws_info(ws_name, weapon)
+        v = info ~= nil and (type(info.sc) ~= "table" or #info.sc == 0)
+        by_weapon[ws_name] = v
+    end
+    return v
+end
+
+-- Can it be used with /ws right now?Excludes pet skills, names not in res, WS not learned / wrong weapon,
 -- and self-target WS (they cannot be used on <t>)
 local function is_executable_ws(ws_name, usable)
     if is_pet_skill(ws_name) then return false end
@@ -1093,10 +1112,15 @@ local function find_base_ws_from_priority()
 
     -- The top usable WS (used as the opener / continuation when there is no chain; a WS not in sc_dict counts too)
     local usable = usable_ws_set()
-    local first_idx, first_ws
+    -- A WS with no skillchain property in sc_dict (Sanguine Blade, ...) is not used to open or continue while another usable WS exists
+    local first_idx, first_ws, any_idx, any_ws
     for idx, ws_name in ipairs(state.ws_priority) do
-        if is_executable_ws(ws_name, usable) then first_idx, first_ws = idx, ws_name break end
+        if is_executable_ws(ws_name, usable) then
+            if not any_ws then any_idx, any_ws = idx, ws_name end
+            if not has_no_sc(ws_name) then first_idx, first_ws = idx, ws_name break end
+        end
     end
+    if not first_ws then first_idx, first_ws = any_idx, any_ws end
     if not first_ws then return nil end
 
     -- Chainbound is on your enemy: the next WS chains regardless of the previous property.
@@ -1239,11 +1263,7 @@ local function ws_props_by_name(ws_name)
     local id = ws_id_by_name(ws_name)
     local ws = id and res and res.weapon_skills and res.weapon_skills[id]
     if not ws then return nil end
-    local props = {}
-    for _, key in ipairs({"skillchain_a", "skillchain_b", "skillchain_c"}) do
-        local en = ws[key]
-        if en and en ~= "" then props[#props + 1] = sc_dict.SC_ALIAS[en] or en end
-    end
+    local props = sc_dict.res_props(ws)   -- errors in res are fixed by sc_dict.RES_SC_OVERRIDE
     return #props > 0 and props or nil
 end
 
@@ -2117,8 +2137,8 @@ local function handle_action_packet(data)
         state.chainbound = nil
         if safe_lt(safe_num(os.clock(), 0), safe_num(cb.until_time, 0)) and (chain == "Light" or chain == "Darkness") and ws_def then
             local lv3 = is_self and cat == 3 and aeonic_prop(ws_def.en)
-            for _, key in ipairs({"skillchain_a", "skillchain_b", "skillchain_c"}) do
-                if ws_def[key] == "Light" or ws_def[key] == "Darkness" then lv3 = true end
+            for _, prop in ipairs(sc_dict.res_props(ws_def)) do
+                if prop == "Light" or prop == "Darkness" then lv3 = true end
             end
             if lv3 then close_reason = "Light/Darkness WS on chainbound" end
         end
@@ -2168,10 +2188,7 @@ local function handle_action_packet(data)
     local ability = res_table[param]
     local props = {}
     if ability then
-        for _, key in ipairs({"skillchain_a", "skillchain_b", "skillchain_c"}) do
-            local en = ability[key]
-            if en and en ~= "" then table.insert(props, sc_dict.SC_ALIAS[en] or en) end
-        end
+        props = sc_dict.res_props(ability)   -- errors in res are fixed by sc_dict.RES_SC_OVERRIDE
         -- Fill in trust moves whose chain properties are missing from res
         if #props == 0 and cat == 11 and not is_self then
             for _, prop in ipairs(sc_dict.TRUST_WS_EXTRA[ability.en] or {}) do table.insert(props, prop) end

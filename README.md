@@ -1,4 +1,4 @@
-# OmniChain (v7.4.6, English edition)
+# OmniChain (v7.4.7, English edition)
 
 OmniChain is a Windower 4 addon for Final Fantasy XI. It watches the weapon skills your party uses, and the blood pacts and automaton moves of pets, and uses the first weapon skill (WS) on your priority list that continues the current skillchain. When no chain is open, it uses the top usable WS on your list to start one. It supports all 22 jobs and all 14 weapon types.
 
@@ -232,6 +232,7 @@ Settings in `data/settings.xml`:
 
 The English edition uses the same version numbers as the Japanese one.
 
+- **v7.4.7 (2026-11-16)**: A WS with no skillchain property is no longer picked as the opener or the continuation.  - If a WS with no property (Myrkr, Energy Drain, Sanguine Blade and others) was at the top of the priority list, the addon kept using it without ever opening a window. It now uses the next WS it can use. If the only WS it can use has no property, it still uses that one.  - For WS whose property in the game's resource data is wrong (Hot Shot, Magic Mortar, Fell Cleave and others), the addon uses the property in sc_dict.lua.  - Nothing here makes the addon send more.
 - **v7.4.6 (2026-11-16)**: The skillchain property table (`sc_dict.lua`) now matches BG-Wiki and the in-game help.
   - Myrkr, Energy Drain, Energy Steal, Spirits Within and Sanguine Blade now have no skillchain property (before, they carried a made-up property named "none").
   - The order of the properties was fixed for Herculean Slash, Spinning Scythe, Earth Crusher, Blade: Chi, Blade: Jin, Daze and Bora Axe.
