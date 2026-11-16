@@ -1,10 +1,10 @@
 -- =============================================================================
--- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.5 - per-chain limit starts over with each fight)
+-- OmniChain.lua : auto-skillchain addon for all 22 jobs and all 14 weapon types (v7.4.6 - per-chain limit starts over with each fight)
 -- =============================================================================
 
 _addon.name     = "OmniChain"
 _addon.author   = "hikaruoshino"
-_addon.version  = "7.4.5"
+_addon.version  = "7.4.6"
 _addon.commands = {"omni", "omnichain"}
 
 require("luau")

@@ -152,8 +152,8 @@ sc_dict.WEAPON_WS = {
         { en = "Shadowstitch", sc = {"Reverberation"} },
         { en = "Gust Slash", sc = {"Detonation"} },
         { en = "Cyclone", sc = {"Detonation", "Impaction"} },
-        { en = "Energy Steal", sc = {"None"} },
-        { en = "Energy Drain", sc = {"None"} },
+        { en = "Energy Steal", sc = {} },   -- no skillchain property (BG-Wiki: Skillchain: None; res is empty too; checked 2026-11-13)
+        { en = "Energy Drain", sc = {} },   -- no skillchain property (BG-Wiki: Skillchain: None; res is empty too; checked 2026-11-13)
         { en = "Dancing Edge", sc = {"Scission", "Detonation"} },
         { en = "Shark Bite", sc = {"Fragmentation"} },
         { en = "Exenterator", sc = {"Fragmentation", "Scission"} },
@@ -173,9 +173,9 @@ sc_dict.WEAPON_WS = {
         { en = "Shining Blade", sc = {"Scission"} },
         { en = "Seraph Blade", sc = {"Scission"} },
         { en = "Circle Blade", sc = {"Reverberation", "Impaction"} },
-        { en = "Spirits Within", sc = {"None"} },
+        { en = "Spirits Within", sc = {} },   -- no skillchain property (BG-Wiki: Skillchain: None; res is empty too; checked 2026-11-13)
         { en = "Swift Blade", sc = {"Gravitation"} },
-        { en = "Sanguine Blade", sc = {"None"} },
+        { en = "Sanguine Blade", sc = {} },   -- no skillchain property (BG-Wiki: Skillchain: None; res is empty too; checked 2026-11-13)
         { en = "Knights of Round", sc = {"Light", "Fusion"} },
         { en = "Expiacion", sc = {"Distortion", "Scission"} },
         { en = "Knights of Rotund", sc = {"Light"} },
@@ -198,7 +198,7 @@ sc_dict.WEAPON_WS = {
         { en = "Scourge", sc = {"Light", "Fusion"} },
         { en = "Crescent Moon", sc = {"Scission"} },
         { en = "Sickle Moon", sc = {"Scission", "Impaction"} },
-        { en = "Herculean Slash", sc = {"Induration", "Detonation", "Impaction"} },
+        { en = "Herculean Slash", sc = {"Induration", "Impaction", "Detonation"} },   -- order per BG-Wiki (Herculean_Slash), same as res (2026-11-13)
     },
     ["Axe"] = {
         { en = "Blitz", sc = {"Liquefaction", "Impaction", "Fragmentation"} },
@@ -215,7 +215,7 @@ sc_dict.WEAPON_WS = {
         { en = "Smash Axe", sc = {"Induration", "Reverberation"} },
         { en = "Gale Axe", sc = {"Detonation"} },
         { en = "Spinning Axe", sc = {"Liquefaction", "Scission", "Impaction"} },
-        { en = "Bora Axe", sc = {"Detonation", "Scission"} },
+        { en = "Bora Axe", sc = {"Scission", "Detonation"} },   -- order confirmed by the user in the in-game help (2026-11-13), same as res
     },
     ["Great Axe"] = {
         { en = "Disaster", sc = {"Transfixion", "Scission", "Gravitation"} },
@@ -248,7 +248,7 @@ sc_dict.WEAPON_WS = {
         { en = "Insurgency", sc = {"Fusion", "Compression"} },
         { en = "Infernal Scythe", sc = {"Compression", "Reverberation"} },
         { en = "Shadow of Death", sc = {"Induration", "Reverberation"} },
-        { en = "Spinning Scythe", sc = {"Scission", "Reverberation"} },
+        { en = "Spinning Scythe", sc = {"Reverberation", "Scission"} },   -- order per BG-Wiki (Spinning_Scythe), same as res (2026-11-13)
         { en = "Vorpal Scythe", sc = {"Transfixion", "Scission"} },
     },
     ["Polearm"] = {
@@ -274,9 +274,9 @@ sc_dict.WEAPON_WS = {
         { en = "Blade: Retsu", sc = {"Scission"} },
         { en = "Blade: Teki", sc = {"Reverberation"} },
         { en = "Blade: To", sc = {"Induration", "Detonation"} },
-        { en = "Blade: Chi", sc = {"Transfixion", "Impaction"} },
+        { en = "Blade: Chi", sc = {"Impaction", "Transfixion"} },   -- order per BG-Wiki (Blade:_Chi), same as res (2026-11-13)
         { en = "Blade: Ei", sc = {"Compression"} },
-        { en = "Blade: Jin", sc = {"Detonation", "Impaction"} },
+        { en = "Blade: Jin", sc = {"Impaction", "Detonation"} },   -- order per BG-Wiki (Blade:_Jin), same as res (2026-11-13)
         { en = "Blade: Ten", sc = {"Gravitation"} },
         { en = "Blade: Ku", sc = {"Gravitation", "Transfixion"} },
         { en = "Blade: Metsu", sc = {"Darkness", "Fragmentation"} },
@@ -322,14 +322,14 @@ sc_dict.WEAPON_WS = {
         { en = "Oshala", sc = {"Induration", "Reverberation", "Fusion"} },
         { en = "Heavy Swing", sc = {"Impaction"} },
         { en = "Rock Crusher", sc = {"Impaction"} },
-        { en = "Earth Crusher", sc = {"Impaction", "Detonation"} },
+        { en = "Earth Crusher", sc = {"Detonation", "Impaction"} },   -- order per BG-Wiki (Earth_Crusher), same as res (2026-11-13)
         { en = "Starburst", sc = {"Compression", "Reverberation"} },
         { en = "Sunburst", sc = {"Compression", "Reverberation"} },
         { en = "Retribution", sc = {"Gravitation", "Reverberation"} },
         { en = "Vidohunir", sc = {"Fragmentation", "Distortion"} },
         { en = "Garland of Bliss", sc = {"Fusion", "Reverberation"} },
         { en = "Omniscience", sc = {"Gravitation", "Transfixion"} },
-        { en = "Myrkr", sc = {"None"} },
+        { en = "Myrkr", sc = {} },   -- no skillchain property (BG-Wiki: Skillchain: None; res is empty too; checked 2026-11-13)
         { en = "Cataclysm", sc = {"Compression", "Reverberation"} },
         { en = "Shattersoul", sc = {"Gravitation", "Induration"} },
         { en = "Shell Crusher", sc = {"Detonation"} },
@@ -380,7 +380,7 @@ sc_dict.PUP_WS_DATABASE = {
     ["Knockout"]           = {"Scission", "Detonation"},
     ["Armor Shatterer"]   = {"Fusion", "Impaction"},
     ["Armor Piercer"]     = {"Gravitation"},
-    ["Daze"]                 = {"Transfixion", "Impaction"},
+    ["Daze"]                 = {"Impaction", "Transfixion"},   -- order per BG-Wiki (Daze_(Weaponskill)), same as res (2026-11-13)
     ["Arcuballista"]         = {"Liquefaction", "Transfixion"}
 }
 
@@ -463,6 +463,32 @@ function sc_dict.evaluate_ws_for_sc(ws_info, prev_sc)
         end
     end
     return nil
+end
+
+-- Moves whose skillchain properties are wrong in res (key: the res English name; value: the correct properties in order).
+-- Other players' and pets' moves are read from res, so for the moves listed here the sc_dict values win (checked 2026-11-13)
+sc_dict.RES_SC_OVERRIDE = {
+    ["Hot Shot"]     = {"Liquefaction", "Transfixion"},   -- https://www.bg-wiki.com/ffxi/Hot_Shot (res says Reverberation, Transfixion)
+    ["Magic Mortar"] = {"Fusion"},                         -- https://www.bg-wiki.com/ffxi/Magic_Mortar (res says Fusion, Liquefaction)
+    ["Camisado"]     = {"Compression"},                    -- https://wiki.ffo.jp/html/4042.html (avatar move; res/job_abilities 656 is empty)
+    ["Fell Cleave"]  = {"Scission", "Detonation", "Impaction"},   -- confirmed by the user in the in-game help (2026-11-13); matches the summary at https://wiki.ffo.jp/html/20204.html (res says Scission, Detonation)
+}
+
+-- Skillchain properties of one res entry (weapon_skills / monster_abilities / job_abilities), as an array.
+-- Moves in RES_SC_OVERRIDE use that value. A new table is returned every time (the caller may add to it)
+function sc_dict.res_props(entry)
+    local props = {}
+    if type(entry) ~= "table" then return props end
+    local fixed = entry.en and sc_dict.RES_SC_OVERRIDE[entry.en]
+    if fixed then
+        for i, prop in ipairs(fixed) do props[i] = prop end
+        return props
+    end
+    for _, key in ipairs({"skillchain_a", "skillchain_b", "skillchain_c"}) do
+        local en = entry[key]
+        if en and en ~= "" then props[#props + 1] = sc_dict.SC_ALIAS[en] or en end
+    end
+    return props
 end
 
 function sc_dict.get_ws_properties(ws_name)
