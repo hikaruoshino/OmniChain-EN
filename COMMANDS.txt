@@ -1,5 +1,5 @@
 ================================================================================
- OmniChain v7.4.3 (English edition) - command list
+ OmniChain v7.4.5 (English edition) - command list
 ================================================================================
  Commands start with //omni or //omnichain.
  Typing just //omni shows a short help.
@@ -39,11 +39,53 @@
  //omni reach <distance>              Distance at which melee WS may be used (1-8, default 3.5;
                                       the distance shown by distanceplus; widened by the amount
                                       an enemy's model_size is above 2)
+ //omni sphere <sec|off|on>           Seconds of no auto WS after the area-sphere warning in
+                                      Ambuscade chapter 1 (0-60, default 20; 0 / off turns it off).
+                                      The Moogle's line (Japanese client only) or the boss's
+                                      (Bozzetto Voyager Moogle) SP move ID (688-693, any client)
+                                      starts it. Chapter 1 zones only. A WS you use by hand is
+                                      never blocked.
  //omni hud [on|off]                  Show / hide the chain HUD (chain window, next WS)
  //omni size <n>                      HUD font size (6-40). Also by mouse wheel over the HUD, or by
                                       dragging the bottom-right corner marker (the size is saved)
  //omni reload                        Reload omnichain_config.json
  //omni status                        Show the current settings, job and priority list
+
+ //omni enable (on) also resumes the auto WS after a limit or repeated refusals stopped it.
+ //omni disable (off) stops the auto WS at any time.
+
+
+--------------------------------------------------------------------------------
+ Safety limits (v7.4.4, v7.4.5)
+--------------------------------------------------------------------------------
+ No WS is sent while the previous WS is pending (4 s), while you are incapacitated (sleep,
+ petrification, stun, charm, amnesia, terror), while <t> is not a living enemy, or for a
+ self-target WS (Dagan, Myrkr).
+ If the game refuses the WS several times in a row (a WS that does not fire within 4 s counts
+ too), the wait grows to 2, 4, 8 and 16 s, and the fifth refusal stops the auto WS. This wait
+ is not cleared by a target change, disengaging or incapacitation (a WS that goes off,
+ //omni on, zoning and logout clear it).
+ A failure (stance interrupted, refused or no response) cancels the chain window, and the chain
+ is rebuilt from an opener (an interrupted stance counts as a failure too).
+ Auto WS limits: 6 WS and 75 s per chain, and 36 in any 300 s.
+                 After a limit stops it, //omni on resumes (the 300 s record is cleared only
+                 when you turn it from OFF to ON).
+                 The per-chain count starts over when a fight ends (disengage, enemy defeated,
+                 3 s after the window closes).
+                 An auto opener (no window and no Chainbound) also starts a new chain count.
+ After you use a WS by hand, no auto WS is sent for 3 seconds (the addon only reads the WS
+ packets you send).
+ After the area-sphere warning (the Moogle's line or the boss's SP move ID), no auto WS is
+ sent for the //omni sphere time.
+ Right before sending, the equipment and usable WS are read again; the WS is sent only if
+ choosing again gives the same WS.
+ When a reservation is cancelled before the result of the last /ws arrives, nothing is sent
+ until 8 s after that /ws.
+ Only your own moves and those of party / alliance members (pets and trusts included) open or
+ move a chain window. Moves by people outside the party are not counted. The chat line
+ "Skillchain: <name>." is only shown on the HUD.
+ In the settings file, min_tp is kept within 1000-3000 and wait_delay within 1.0-10.0 s.
+ Magic skillchains (Immanence, magic bursts) are not tracked; only WS, pet and trust moves are.
 
 
 --------------------------------------------------------------------------------
@@ -77,6 +119,7 @@
  WS_TIMEOUT   The automatically sent WS did not fire within 4 seconds
               (check the WS name, distance, incapacitation, etc.)
  WS_FAIL      The WS failed (out of range, too far, not enough TP, wrong weapon, stance interrupted, ...)
+ WS_HALT      The auto WS was stopped after 5 refusals in a row or on reaching a limit (//omni on resumes)
  WS_RESULT    The WS missed / had no effect, or a different WS fired than the one sent
  CHECK        The priority list contains a WS that cannot be used
  ERROR        An internal Lua error in OmniChain (details are written to the log file)
